@@ -1,10 +1,7 @@
 import express from "express";
-const app = express();
-const port = 3000;
+import { app } from "./handler/handler";
 
-app.get("/", (req, res) => {
-  res.send("Hello World!");
-});
+const port = parseInt(process.env.PORT) || 8080;
 
 app.listen(port, () => {
   return console.log(`Express is listening at http://localhost:${port}`);
