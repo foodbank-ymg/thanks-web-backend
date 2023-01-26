@@ -2,10 +2,10 @@
   "name": "thanks-web-backend",
   "version": "1.0.0",
   "description": "",
-  "main": "main.ts",
+  "main": "src/main.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node dist/main.js",
+    "start": "ts-node src/main.ts",
     "build": "npx tsc"
   },
   "keywords": [],
@@ -17,6 +17,8 @@
   "dependencies": {
     "@line/bot-sdk": "^7.5.2",
     "dotenv": "^16.0.3",
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "nodemon": "^2.0.20",
+    "ts-node": "^10.9.1"
   }
 }
