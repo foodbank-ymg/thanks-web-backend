@@ -1,8 +1,8 @@
 type Config = {
-  adminLineSecret: string;
-  adminLineAccessToken: string;
-  userLineSecret: string;
-  userLineAccessToken: string;
+  managerLineSecret: string;
+  managerLineAccessToken: string;
+  recipientLineSecret: string;
+  recipientLineAccessToken: string;
 };
 
 var config: Config | undefined;
@@ -14,10 +14,10 @@ export const loadConfig = (): Config => {
 
   if (!config) {
     config = {
-      adminLineSecret: process.env.CLOSED_LINE_SECRET,
-      adminLineAccessToken: process.env.CLOSED_LINE_TOKEN,
-      userLineSecret: process.env.PUBLIC_LINE_SECRET,
-      userLineAccessToken: process.env.PUBLIC_LINE_TOKEN,
+      managerLineSecret: process.env.MANAGER_LINE_SECRET,
+      managerLineAccessToken: process.env.MANAGER_LINE_TOKEN,
+      recipientLineSecret: process.env.RECIPIENT_LINE_SECRET,
+      recipientLineAccessToken: process.env.RECIPIENT_LINE_TOKEN,
     };
   }
 

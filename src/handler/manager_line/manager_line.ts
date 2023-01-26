@@ -1,7 +1,7 @@
 import { Client, TextMessage, WebhookEvent } from '@line/bot-sdk';
 import { Request, Response } from 'express';
 
-export class adminLineHandler {
+export class managerLineHandler {
   constructor(private client: Client) {}
 
   handle(req: Request, res: Response) {
