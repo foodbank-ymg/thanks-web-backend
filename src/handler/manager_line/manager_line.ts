@@ -1,50 +1,47 @@
-import { Client, TextMessage, WebhookEvent } from '@line/bot-sdk';
-import { Request, Response } from 'express';
+import { Client, Message, TextMessage, WebhookEvent } from '@line/bot-sdk'
+import { Request, Response } from 'express'
+import { getManagerByLineId } from '../../lib/firestore/manager'
+import { Manager } from '../../types/managers'
+import { newManager, returningManager } from './setup'
 
 export class managerLineHandler {
-  constructor(private client: Client) {}
+  constructor(private client: Client) {
+    this.client = client
+  }
 
   handle(req: Request, res: Response) {
-    const events: WebhookEvent[] = req.body.events;
-    Promise.all(events.map((event) => handleEvent(this.client, event))).then(
-      (result) => res.json(result),
-    );
+    const events: WebhookEvent[] = req.body.events
+    Promise.all(events.map((event) => handleEvent(this.client, event))).then((result) =>
+      res.json(result),
+    )
   }
 }
 
 const handleEvent = async (client: Client, event: WebhookEvent) => {
-  let res: TextMessage = { type: 'text', text: 'メッセージがありません。' };
+  let message: Message = { type: 'text', text: 'メッセージがありません。' }
 
-  // switch (event.type) {
-  //   case "unfollow":
-  //     return;
-  //   case "message":
-  //     var user = await User.build(event.source.userId);
-  //     res = await message(event, user);
-  //     break;
-  //   case "follow":
-  //     var user = await User.build(event.source.userId);
-  //     if (user.name === undefined || user.name === "") {
-  //       res = {
-  //         type: "text",
-  //         text: "ご登録ありがとうございます。まずはお名前を教えてください。(Webサイトには表示されません)",
-  //       }; //記事を投稿するときは「投稿」と話しかけてください
-  //       user.setStatus(status.name, status.confirming);
-  //     } else {
-  //       res = {
-  //         type: "text",
-  //         text:
-  //           user[field.name] +
-  //           "さん、お帰りなさい！記事を投稿するときは「投稿」と話しかけてください",
-  //       };
-  //     }
-  //     break;
-  // }
-
-  if (event.type !== 'message' || event.message.type !== 'text') {
-    // ignore non-text-message event
-    return Promise.resolve(null);
+  const manager = await getManagerByLineId(event.source.userId)
+  //const action = react(event, manager)
+  //action(manager, message)
+  switch (event.type) {
+    case 'unfollow':
+      return Promise.resolve()
+    case 'follow':
+      break
+    case 'message':
+      break
+    default:
+      return Promise.resolve()
   }
+  const action = react(event, manager)
+  message = action(manager)
 
-  return client.replyMessage(event.replyToken, res);
-};
+  return client.replyMessage(event.replyToken, message)
+}
+
+const react = (event: WebhookEvent, manager: Manager): ((manager: Manager) => Message) => {
+  if (event.type === 'follow') {
+    if (manager.name === '') return newManager
+    else returningManager
+  }
+}
