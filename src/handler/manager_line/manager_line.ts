@@ -1,26 +1,19 @@
-import { Client, Message, TextMessage, WebhookEvent } from "@line/bot-sdk";
-import { Middleware } from "@line/bot-sdk/dist/middleware";
-import { Express, Request, Response } from "express";
+import { Client, TextMessage, WebhookEvent } from '@line/bot-sdk';
+import { Request, Response } from 'express';
 
-export const adminLineHandler = (
-  app: Express,
-  middleware: Middleware,
-  client: Client
-) => {
-  app.post("/admin-line", middleware, (req, res) =>
-    lineEvent(client, req, res)
-  );
-};
+export class managerLineHandler {
+  constructor(private client: Client) {}
 
-const lineEvent = async (client: Client, req: Request, res: Response) => {
-  const events: WebhookEvent[] = req.body.events;
-  Promise.all(events.map((event) => handleEvent(client, event))).then(
-    (result) => res.json(result)
-  );
-};
+  handle(req: Request, res: Response) {
+    const events: WebhookEvent[] = req.body.events;
+    Promise.all(events.map((event) => handleEvent(this.client, event))).then(
+      (result) => res.json(result),
+    );
+  }
+}
 
-export const handleEvent = async (client: Client, event: WebhookEvent) => {
-  let res: TextMessage = { type: "text", text: "メッセージがありません。" };
+const handleEvent = async (client: Client, event: WebhookEvent) => {
+  let res: TextMessage = { type: 'text', text: 'メッセージがありません。' };
 
   // switch (event.type) {
   //   case "unfollow":
@@ -48,7 +41,7 @@ export const handleEvent = async (client: Client, event: WebhookEvent) => {
   //     break;
   // }
 
-  if (event.type !== "message" || event.message.type !== "text") {
+  if (event.type !== 'message' || event.message.type !== 'text') {
     // ignore non-text-message event
     return Promise.resolve(null);
   }
