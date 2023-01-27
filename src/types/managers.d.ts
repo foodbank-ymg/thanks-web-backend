@@ -9,4 +9,4 @@ type Manager = {
   createdAt: firestore.Timestamp
 }
 
-type ManagerStatus = '名前入力' | '待機'
+type ManagerStatus = '名前入力' | ''

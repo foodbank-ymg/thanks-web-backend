@@ -1,8 +1,9 @@
 import { Client, Message, TextMessage, WebhookEvent } from '@line/bot-sdk'
 import { Request, Response } from 'express'
-import { getManagerByLineId } from '../../lib/firestore/manager'
+import { keyword } from '../../consts/keyword'
+import { getManagerByLineId, updateManager } from '../../lib/firestore/manager'
 import { Manager } from '../../types/managers'
-import { newManager, returningManager } from './setup'
+import { askNameAgain, confirmName, decideName, newManager, returningManager } from './setup'
 
 export class managerLineHandler {
   constructor(private client: Client) {
@@ -23,25 +24,42 @@ const handleEvent = async (client: Client, event: WebhookEvent) => {
   const manager = await getManagerByLineId(event.source.userId)
   //const action = react(event, manager)
   //action(manager, message)
-  switch (event.type) {
-    case 'unfollow':
-      return Promise.resolve()
-    case 'follow':
-      break
-    case 'message':
-      break
-    default:
-      return Promise.resolve()
+  if (event.type === 'unfollow') {
+    manager.enable = false
+    return Promise.resolve()
   }
-  const action = react(event, manager)
-  message = action(manager)
 
+  const action = react(event, manager)
+  message = action(event, manager)
+  updateManager(manager)
+
+  if (!(event.type === 'follow' || event.type === 'message')) return Promise.resolve()
   return client.replyMessage(event.replyToken, message)
 }
 
-const react = (event: WebhookEvent, manager: Manager): ((manager: Manager) => Message) => {
+const react = (
+  event: WebhookEvent,
+  manager: Manager,
+): ((event: WebhookEvent, manager: Manager) => Message) => {
   if (event.type === 'follow') {
-    if (manager.name === '') return newManager
-    else returningManager
+    if (manager.name === '' || manager.status === '名前入力') return newManager
+    else return returningManager
+  } else if (event.type === 'message') {
+    if (event.message.type === 'text') {
+      switch (manager.status) {
+        case '名前入力':
+          switch (event.message.text) {
+            case keyword.yes:
+              return decideName
+            case keyword.no:
+              return askNameAgain
+          }
+          return confirmName
+        default:
+          return (event, manager) => {
+            return { type: 'text', text: '未実装です。' } as TextMessage
+          }
+      }
+    }
   }
 }
