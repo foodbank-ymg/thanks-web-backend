@@ -6,6 +6,8 @@ import {
   TextMessage,
   WebhookEvent,
 } from '@line/bot-sdk'
+import { keyword } from '../../consts/keyword'
+import { ConfirmTemplate } from '../../lib/line/template'
 import { Manager } from '../../types/managers'
 
 export const newManager = (event: MessageEvent, manager: Manager) => {
@@ -27,20 +29,9 @@ export const returningManager = (event: MessageEvent, manager: Manager) => {
 
 export const confirmName = (event: MessageEvent, manager: Manager) => {
   if (event.message.type !== 'text') return
-  const message: TemplateMessage = {
-    type: 'template',
-    altText: `名前確認`,
-    template: {
-      type: 'confirm',
-      actions: [
-        { type: 'message', label: 'はい', text: 'はい' },
-        { type: 'message', label: 'いいえ', text: 'いいえ' },
-      ],
-      text: `お名前は${event.message.text}でよろしいですか？`,
-    },
-  }
+
   manager.name = event.message.text
-  return message
+  return ConfirmTemplate(`お名前は${event.message.text}でよろしいですか？`, '名前確認')
 }
 
 export const askNameAgain = (event: MessageEvent, manager: Manager) => {
