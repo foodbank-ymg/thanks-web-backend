@@ -1,8 +1,8 @@
-import { Express } from "express";
+import { Express } from 'express'
 
 export const batchHandler = (app: Express) => {
   //app.use("/batch");
-  app.get("/batch/ping", (req, res) => {
-    res.send("pong");
-  });
-};
+  app.get('/batch/ping', (req, res) => {
+    res.send('pong')
+  })
+}
