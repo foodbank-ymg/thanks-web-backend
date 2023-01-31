@@ -1,4 +1,4 @@
-import { TemplateMessage } from '@line/bot-sdk'
+import { TemplateMessage, TextMessage } from '@line/bot-sdk'
 import { keyword } from '../../consts/keyword'
 
 export const ConfirmTemplate = (text: string, alt: string) => {
@@ -13,6 +13,14 @@ export const ConfirmTemplate = (text: string, alt: string) => {
       ],
       text: text,
     },
+  }
+  return message
+}
+
+export const TextTemplate = (text: string) => {
+  const message: TextMessage = {
+    type: 'text',
+    text: text,
   }
   return message
 }

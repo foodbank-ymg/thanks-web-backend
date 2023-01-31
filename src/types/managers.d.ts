@@ -6,7 +6,7 @@ type Manager = {
   name: string
   status: ManagerStatus
   enable: boolean
-  createdAt: firestore.Timestamp
+  createdAt: Date
 }
 
 type ManagerStatus = '名前入力' | ''

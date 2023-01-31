@@ -1,4 +1,5 @@
 import {
+  FollowEvent,
   Message,
   MessageEvent,
   TemplateMessage,
@@ -7,40 +8,42 @@ import {
   WebhookEvent,
 } from '@line/bot-sdk'
 import { keyword } from '../../consts/keyword'
-import { ConfirmTemplate } from '../../lib/line/template'
+import { ConfirmTemplate, TextTemplate } from '../../lib/line/template'
 import { Manager } from '../../types/managers'
 
-export const newManager = (event: MessageEvent, manager: Manager) => {
+export const tellWelcome = (event: WebhookEvent) => {
+  return TextTemplate(
+    `友だち追加ありがとうございます。\nこのアカウントでは、文章や画像をチャット送っていただくだけで記事投稿が出来ます。`,
+  )
+}
+
+export const askName = () => {
   const message: TextMessage = {
     type: 'text',
-    text: 'お名前を教えてください。※この情報はWebサイトには表示されません。',
+    text: '早速ですが、お名前を教えてください。※この情報はWebサイトには表示されません。',
   }
   return message
 }
 
-export const returningManager = (event: MessageEvent, manager: Manager) => {
+export const tellWelcomeBack = (manager: Manager) => {
   const message: TextMessage = {
     type: 'text',
     text: `${manager.name}さん、お帰りなさい！`,
   }
-  manager.enable = true
   return message
 }
 
-export const confirmName = (event: MessageEvent, manager: Manager) => {
+export const confirmName = (event: MessageEvent) => {
   if (event.message.type !== 'text') return
-
-  manager.name = event.message.text
   return ConfirmTemplate(`お名前は${event.message.text}でよろしいですか？`, '名前確認')
 }
 
-export const askNameAgain = (event: MessageEvent, manager: Manager) => {
+export const askNameAgain = (event: MessageEvent) => {
   if (event.message.type !== 'text') return
   const message: TextMessage = {
     type: 'text',
     text: 'もう一度お名前を教えてください',
   }
-  manager.name = ''
   return message
 }
 
@@ -50,7 +53,6 @@ export const decideName = (event: MessageEvent, manager: Manager) => {
     type: 'text',
     text: `${manager.name}さん、よろしくお願いします。`,
   }
-  manager.status = ''
-  manager.enable = true
+
   return message
 }
