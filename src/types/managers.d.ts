@@ -1,12 +1,11 @@
 import { firestore } from 'firebase-admin'
+import { statusType } from '../consts/constants'
 
 type Manager = {
   id: string
   lineId: string
   name: string
-  status: ManagerStatus
+  status: statusType
   enable: boolean
   createdAt: Date
 }
-
-type ManagerStatus = '名前入力' | ''

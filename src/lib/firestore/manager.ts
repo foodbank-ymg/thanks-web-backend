@@ -3,6 +3,7 @@ import { db } from './firestore'
 import admin from 'firebase-admin'
 import { DocumentData, QueryDocumentSnapshot } from 'firebase-admin/firestore'
 import { makeId } from '../../utils/random/random'
+import { status } from '../../consts/constants'
 
 export const getManagerByLineId = async (lineId: string) => {
   const manager = (
@@ -40,7 +41,7 @@ export const createManager = async (lineId: string) => {
     id: `m-${makeId(4)}`,
     lineId: lineId,
     name: '',
-    status: '名前入力',
+    status: status.inputName,
     enable: false,
     createdAt: new Date(),
   }

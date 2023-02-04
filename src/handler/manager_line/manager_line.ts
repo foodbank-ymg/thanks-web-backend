@@ -1,5 +1,6 @@
 import { Client, Message, MessageEvent, TextMessage, WebhookEvent } from '@line/bot-sdk'
 import { Request, Response } from 'express'
+import { status } from '../../consts/constants'
 import { keyword } from '../../consts/keyword'
 import { createManager, getManagerByLineId, updateManager } from '../../lib/firestore/manager'
 import { TextTemplate } from '../../lib/line/template'
@@ -41,17 +42,18 @@ export class managerLineHandler {
 const handleEvent = async (client: Client, event: WebhookEvent) => {
   let message: Message = { type: 'text', text: 'メッセージがありません。' }
 
-  const manager = await getManagerByLineId(event.source.userId)
-  if (manager !== undefined) {
-    await createManager(event.source.userId)
+  let manager_ = await getManagerByLineId(event.source.userId)
+  if (manager_ === undefined) {
+    manager_ = await createManager(event.source.userId)
   }
+  const manager = manager_ // to make manager constant
   //const action = react(event, manager)
   //action(manager, message)
   if (event.type === 'unfollow') {
     manager.enable = false
     return Promise.resolve()
   } else if (event.type === 'follow') {
-    if (manager.name === '' || manager.status === '名前入力') {
+    if (manager.name === '' || manager.status === status.inputName) {
       return client.replyMessage(event.replyToken, [tellWelcome(event), askName()])
     } else {
       manager.enable = true
@@ -66,22 +68,22 @@ const handleEvent = async (client: Client, event: WebhookEvent) => {
 const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> => {
   if (event.message.type === 'text') {
     switch (manager.status) {
-      case '名前入力':
+      case status.inputName:
         switch (event.message.text) {
           case keyword.yes:
-            manager.status = ''
+            manager.status = status.idle
             manager.enable = true
-            updateManager(manager).then(() => {
+            return updateManager(manager).then(() => {
               return [decideName(event, manager)]
             })
           case keyword.no:
             manager.name = ''
-            updateManager(manager).then(() => {
+            return updateManager(manager).then(() => {
               return [askNameAgain(event)]
             })
           default:
             manager.name = event.message.text
-            updateManager(manager).then(() => {
+            return updateManager(manager).then(() => {
               return [confirmName(event)]
             })
         }
@@ -90,7 +92,7 @@ const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> 
     }
   } else {
     switch (manager.status) {
-      case '名前入力':
+      case status.inputName:
         return [askNameAgain(event)]
       default:
         return [{ type: 'text', text: '未実装です。' } as TextMessage]
