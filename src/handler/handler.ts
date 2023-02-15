@@ -3,7 +3,6 @@ import express from 'express'
 import { loadConfig } from '../config/config'
 import { managerLineHandler } from './manager_line/manager_line'
 import { recipientLineHandler } from './recipient_line/recipient_line'
-import admin from 'firebase-admin'
 import { newFirestore } from '../lib/firestore/firestore'
 import { getManagerByLineId } from '../lib/firestore/manager'
 export const app = express()

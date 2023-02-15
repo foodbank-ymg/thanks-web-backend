@@ -1,6 +1,5 @@
 import { Manager } from '../../types/managers'
 import { db } from './firestore'
-import admin from 'firebase-admin'
 import { DocumentData, QueryDocumentSnapshot } from 'firebase-admin/firestore'
 import { makeId } from '../../utils/random/random'
 import { status } from '../../consts/constants'

@@ -1,15 +1,4 @@
-import {
-  FollowEvent,
-  Message,
-  MessageEvent,
-  TemplateMessage,
-  TextEventMessage,
-  TextMessage,
-  WebhookEvent,
-} from '@line/bot-sdk'
-import { keyword } from '../../consts/keyword'
 import { ConfirmTemplate, TextTemplate } from '../../lib/line/template'
-import { Manager } from '../../types/managers'
 
 export const tellWelcome = () => {
   return TextTemplate(
@@ -18,19 +7,13 @@ export const tellWelcome = () => {
 }
 
 export const askName = () => {
-  const message: TextMessage = {
-    type: 'text',
-    text: '早速ですが、お名前を教えてください。※この情報はWebサイトには表示されません。',
-  }
-  return message
+  return TextTemplate(
+    '早速ですが、お名前を教えてください。※この情報はWebサイトには表示されません。',
+  )
 }
 
 export const tellWelcomeBack = (name: string) => {
-  const message: TextMessage = {
-    type: 'text',
-    text: `${name}さん、お帰りなさい！`,
-  }
-  return message
+  return TextTemplate(`${name}さん、おかえりなさい。`)
 }
 
 export const confirmName = (name: string) => {
@@ -38,18 +21,9 @@ export const confirmName = (name: string) => {
 }
 
 export const askNameAgain = () => {
-  const message: TextMessage = {
-    type: 'text',
-    text: 'もう一度お名前を教えてください',
-  }
-  return message
+  return TextTemplate('もう一度お名前を教えてください。')
 }
 
 export const decideName = (name: string) => {
-  const message: TextMessage = {
-    type: 'text',
-    text: `${name}さん、よろしくお願いします。`,
-  }
-
-  return message
+  return TextTemplate(`${name}さん、よろしくお願いします。`)
 }

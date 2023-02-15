@@ -1,4 +1,4 @@
-import { Client, Message, MessageEvent, TextMessage, WebhookEvent } from '@line/bot-sdk'
+import { Client, Message, MessageEvent,  WebhookEvent } from '@line/bot-sdk'
 import { Request, Response } from 'express'
 import { status } from '../../consts/constants'
 import { keyword } from '../../consts/keyword'
@@ -26,8 +26,6 @@ export class managerLineHandler {
 
     const results = await Promise.all(
       events.map(async (event: WebhookEvent) => {
-        //eventの種類によってはreplyを行わない。
-
         // handleEventが必要なDB処理などを実行しユーザー返答Message配列のPromiseを返してくる。
         // this.clientは渡さなくてよくなる
         const messages = await handleEvent(event).catch((err) => {
@@ -41,10 +39,16 @@ export class managerLineHandler {
             return [TextTemplate(phrase.systemError)]
           }
         })
+        console.log(messages)
 
         // 正常時にそのメッセージを返し、結果をmapに集約する
-        if (event.type !== 'message' || event.message.type !== 'text') return Promise.resolve()
-        if (messages) return this.client.replyMessage(event.replyToken, messages)
+
+        //eventの種類によってはreplyを行わない。
+        if (event.type === 'message' || event.type === 'follow') {
+          if (messages) return this.client.replyMessage(event.replyToken, messages)
+        } else {
+          return Promise.resolve()
+        }
       }),
     )
 
