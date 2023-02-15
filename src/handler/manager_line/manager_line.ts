@@ -1,4 +1,4 @@
-import { Client, Message, MessageEvent,  WebhookEvent } from '@line/bot-sdk'
+import { Client, Message, MessageEvent, WebhookEvent } from '@line/bot-sdk'
 import { Request, Response } from 'express'
 import { status } from '../../consts/constants'
 import { keyword } from '../../consts/keyword'
@@ -39,7 +39,6 @@ export class managerLineHandler {
             return [TextTemplate(phrase.systemError)]
           }
         })
-        console.log(messages)
 
         // 正常時にそのメッセージを返し、結果をmapに集約する
 
