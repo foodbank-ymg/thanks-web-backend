@@ -2,6 +2,7 @@ import { Client, Message, MessageEvent, TextMessage, WebhookEvent } from '@line/
 import { Request, Response } from 'express'
 import { status } from '../../consts/constants'
 import { keyword } from '../../consts/keyword'
+import { phrase } from '../../consts/phrase'
 import { createManager, getManagerByLineId, updateManager } from '../../lib/firestore/manager'
 import { TextTemplate } from '../../lib/line/template'
 import { Manager } from '../../types/managers'
@@ -19,29 +20,43 @@ export class managerLineHandler {
     this.client = client
   }
 
-  handle(req: Request, res: Response) {
+  async handle(req: Request, res: Response) {
     const events: WebhookEvent[] = req.body.events
     //events[0]のみ対応するかは、まだ検討中
-    Promise.all(events.map((event) => handleEvent(this.client, event)))
-      .then((result) => {
-        if (result !== null) res.json(result)
-      })
-      .catch((err) => {
-        console.log(err)
-        //
-        res.json(
-          this.client.pushMessage(
-            events[0].source.userId,
-            TextTemplate('システムでエラーが発生しました。'),
-          ),
-        )
-      })
+
+    const results = await Promise.all(
+      events.map(async (event: WebhookEvent) => {
+        //eventの種類によってはreplyを行わない。
+
+        // handleEventが必要なDB処理などを実行しユーザー返答Message配列のPromiseを返してくる。
+        // this.clientは渡さなくてよくなる
+        const messages = await handleEvent(event).catch((err) => {
+          if (err instanceof Error) {
+            console.error(err)
+            // LINEでエラーの旨を伝えたいので一旦コメントアウト
+            // return res.status(500).json({
+            // status: 'error',
+            //});
+            // 異常時は定型メッセージで応答
+            return [TextTemplate(phrase.systemError)]
+          }
+        })
+
+        // 正常時にそのメッセージを返し、結果をmapに集約する
+        if (event.type !== 'message' || event.message.type !== 'text') return Promise.resolve()
+        if (messages) return this.client.replyMessage(event.replyToken, messages)
+      }),
+    )
+
+    // すべてが終わり、resultsをBodyとしてhttpの200を返してる
+    return res.status(200).json({
+      status: 'success',
+      results,
+    })
   }
 }
 
-const handleEvent = async (client: Client, event: WebhookEvent) => {
-  let message: Message = { type: 'text', text: 'メッセージがありません。' }
-
+const handleEvent = async (event: WebhookEvent): Promise<Message[] | void> => {
   let manager_ = await getManagerByLineId(event.source.userId)
   if (manager_ === undefined) {
     manager_ = await createManager(event.source.userId)
@@ -51,17 +66,19 @@ const handleEvent = async (client: Client, event: WebhookEvent) => {
   //action(manager, message)
   if (event.type === 'unfollow') {
     manager.enable = false
+    await updateManager(manager)
     return Promise.resolve()
   } else if (event.type === 'follow') {
     if (manager.name === '' || manager.status === status.inputName) {
-      return client.replyMessage(event.replyToken, [tellWelcome(event), askName()])
+      return [tellWelcome(), askName()]
     } else {
       manager.enable = true
-      return client.replyMessage(event.replyToken, [tellWelcomeBack(manager)])
+      await updateManager(manager)
+      return [tellWelcomeBack(manager.name)]
     }
   } else if (event.type === 'message') {
     const messages = await react(event, manager)
-    return client.replyMessage(event.replyToken, messages)
+    return messages
   }
 }
 
@@ -73,29 +90,23 @@ const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> 
           case keyword.yes:
             manager.status = status.idle
             manager.enable = true
-            return updateManager(manager).then(() => {
-              return [decideName(event, manager)]
-            })
+            await updateManager(manager)
+            return [decideName(manager.name)]
           case keyword.no:
             manager.name = ''
-            return updateManager(manager).then(() => {
-              return [askNameAgain(event)]
-            })
+            await updateManager(manager)
+            return [askNameAgain()]
           default:
             manager.name = event.message.text
-            return updateManager(manager).then(() => {
-              return [confirmName(event)]
-            })
+            await updateManager(manager)
+            return [confirmName(manager.name)]
         }
-      default:
-        return [{ type: 'text', text: '未実装です。' } as TextMessage]
     }
   } else {
     switch (manager.status) {
       case status.inputName:
-        return [askNameAgain(event)]
-      default:
-        return [{ type: 'text', text: '未実装です。' } as TextMessage]
+        return [askNameAgain()]
     }
   }
+  return [TextTemplate(phrase.dontHaveMessage)]
 }

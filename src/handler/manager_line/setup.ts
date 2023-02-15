@@ -11,7 +11,7 @@ import { keyword } from '../../consts/keyword'
 import { ConfirmTemplate, TextTemplate } from '../../lib/line/template'
 import { Manager } from '../../types/managers'
 
-export const tellWelcome = (event: WebhookEvent) => {
+export const tellWelcome = () => {
   return TextTemplate(
     `友だち追加ありがとうございます。\nこのアカウントでは、文章や画像をチャット送っていただくだけで記事投稿が出来ます。`,
   )
@@ -25,21 +25,19 @@ export const askName = () => {
   return message
 }
 
-export const tellWelcomeBack = (manager: Manager) => {
+export const tellWelcomeBack = (name: string) => {
   const message: TextMessage = {
     type: 'text',
-    text: `${manager.name}さん、お帰りなさい！`,
+    text: `${name}さん、お帰りなさい！`,
   }
   return message
 }
 
-export const confirmName = (event: MessageEvent) => {
-  if (event.message.type !== 'text') return
-  return ConfirmTemplate(`お名前は${event.message.text}でよろしいですか？`, '名前確認')
+export const confirmName = (name: string) => {
+  return ConfirmTemplate(`お名前は${name}でよろしいですか？`, '名前確認')
 }
 
-export const askNameAgain = (event: MessageEvent) => {
-  if (event.message.type !== 'text') return
+export const askNameAgain = () => {
   const message: TextMessage = {
     type: 'text',
     text: 'もう一度お名前を教えてください',
@@ -47,11 +45,10 @@ export const askNameAgain = (event: MessageEvent) => {
   return message
 }
 
-export const decideName = (event: MessageEvent, manager: Manager) => {
-  if (event.message.type !== 'text') return
+export const decideName = (name: string) => {
   const message: TextMessage = {
     type: 'text',
-    text: `${manager.name}さん、よろしくお願いします。`,
+    text: `${name}さん、よろしくお願いします。`,
   }
 
   return message
