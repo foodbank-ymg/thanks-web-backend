@@ -1,50 +1,115 @@
-import { Client, TextMessage, WebhookEvent } from '@line/bot-sdk';
-import { Request, Response } from 'express';
+import { Client, Message, MessageEvent, WebhookEvent } from '@line/bot-sdk'
+import { Request, Response } from 'express'
+import { status } from '../../consts/constants'
+import { keyword } from '../../consts/keyword'
+import { phrase } from '../../consts/phrase'
+import { createManager, getManagerByLineId, updateManager } from '../../lib/firestore/manager'
+import { TextTemplate } from '../../lib/line/template'
+import { Manager } from '../../types/managers'
+import {
+  askName,
+  askNameAgain,
+  confirmName,
+  decideName,
+  tellWelcome,
+  tellWelcomeBack,
+} from './setup'
 
 export class managerLineHandler {
-  constructor(private client: Client) {}
+  constructor(private client: Client) {
+    this.client = client
+  }
 
-  handle(req: Request, res: Response) {
-    const events: WebhookEvent[] = req.body.events;
-    Promise.all(events.map((event) => handleEvent(this.client, event))).then(
-      (result) => res.json(result),
-    );
+  async handle(req: Request, res: Response) {
+    const events: WebhookEvent[] = req.body.events
+    //events[0]のみ対応するかは、まだ検討中
+
+    const results = await Promise.all(
+      events.map(async (event: WebhookEvent) => {
+        // handleEventが必要なDB処理などを実行しユーザー返答Message配列のPromiseを返してくる。
+        // this.clientは渡さなくてよくなる
+        const messages = await handleEvent(event).catch((err) => {
+          if (err instanceof Error) {
+            console.error(err)
+            // LINEでエラーの旨を伝えたいので一旦コメントアウト
+            // return res.status(500).json({
+            // status: 'error',
+            //});
+            // 異常時は定型メッセージで応答
+            return [TextTemplate(phrase.systemError)]
+          }
+        })
+
+        // 正常時にそのメッセージを返し、結果をmapに集約する
+
+        //eventの種類によってはreplyを行わない。
+        if (event.type === 'message' || event.type === 'follow') {
+          if (messages) return this.client.replyMessage(event.replyToken, messages)
+        } else {
+          return Promise.resolve()
+        }
+      }),
+    )
+
+    // すべてが終わり、resultsをBodyとしてhttpの200を返してる
+    return res.status(200).json({
+      status: 'success',
+      results,
+    })
   }
 }
 
-const handleEvent = async (client: Client, event: WebhookEvent) => {
-  let res: TextMessage = { type: 'text', text: 'メッセージがありません。' };
-
-  // switch (event.type) {
-  //   case "unfollow":
-  //     return;
-  //   case "message":
-  //     var user = await User.build(event.source.userId);
-  //     res = await message(event, user);
-  //     break;
-  //   case "follow":
-  //     var user = await User.build(event.source.userId);
-  //     if (user.name === undefined || user.name === "") {
-  //       res = {
-  //         type: "text",
-  //         text: "ご登録ありがとうございます。まずはお名前を教えてください。(Webサイトには表示されません)",
-  //       }; //記事を投稿するときは「投稿」と話しかけてください
-  //       user.setStatus(status.name, status.confirming);
-  //     } else {
-  //       res = {
-  //         type: "text",
-  //         text:
-  //           user[field.name] +
-  //           "さん、お帰りなさい！記事を投稿するときは「投稿」と話しかけてください",
-  //       };
-  //     }
-  //     break;
-  // }
-
-  if (event.type !== 'message' || event.message.type !== 'text') {
-    // ignore non-text-message event
-    return Promise.resolve(null);
+const handleEvent = async (event: WebhookEvent): Promise<Message[] | void> => {
+  let manager_ = await getManagerByLineId(event.source.userId)
+  if (manager_ === undefined) {
+    manager_ = await createManager(event.source.userId)
   }
+  const manager = manager_ // to make manager constant
+  //const action = react(event, manager)
+  //action(manager, message)
+  if (event.type === 'unfollow') {
+    manager.enable = false
+    await updateManager(manager)
+    return Promise.resolve()
+  } else if (event.type === 'follow') {
+    if (manager.name === '' || manager.status === status.inputName) {
+      return [tellWelcome(), askName()]
+    } else {
+      manager.enable = true
+      await updateManager(manager)
+      return [tellWelcomeBack(manager.name)]
+    }
+  } else if (event.type === 'message') {
+    const messages = await react(event, manager)
+    return messages
+  }
+}
 
-  return client.replyMessage(event.replyToken, res);
-};
+const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> => {
+  if (event.message.type === 'text') {
+    switch (manager.status) {
+      case status.inputName:
+        switch (event.message.text) {
+          case keyword.yes:
+            manager.status = status.idle
+            manager.enable = true
+            await updateManager(manager)
+            return [decideName(manager.name)]
+          case keyword.no:
+            manager.name = ''
+            await updateManager(manager)
+            return [askNameAgain()]
+          default:
+            manager.name = event.message.text
+            await updateManager(manager)
+            return [confirmName(manager.name)]
+        }
+    }
+  } else {
+    switch (manager.status) {
+      case status.inputName:
+        return [askNameAgain()]
+    }
+  }
+  return [TextTemplate(phrase.dontHaveMessage)]
+}
