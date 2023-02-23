@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "aaron-bond.better-comments",
+    "mikestead.dotenv",
+    "dbaeumer.vscode-eslint",
+    "xabikos.javascriptsnippets",
+    "esbenp.prettier-vscode"
+  ]
+}
