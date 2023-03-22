@@ -45,7 +45,7 @@ export const createManager = async (lineId: string) => {
     createdAt: new Date(),
   }
   updateManager(newManager)
-  console.info(`create new user${newManager}`)
+  console.info(`create new manager${newManager}`)
   return newManager
 }
 export const updateManager = async (manager: Manager) => {
