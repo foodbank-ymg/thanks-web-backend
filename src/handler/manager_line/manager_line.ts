@@ -9,11 +9,11 @@ import { Manager } from '../../types/managers'
 import {
   askName,
   askNameAgain,
+  completeRegister,
   confirmName,
-  decideName,
   tellWelcome,
   tellWelcomeBack,
-} from './setup'
+} from '../common/setup'
 
 export class managerLineHandler {
   constructor(private client: Client) {
@@ -94,7 +94,7 @@ const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> 
             manager.status = status.idle
             manager.enable = true
             await updateManager(manager)
-            return [decideName(manager.name)]
+            return [completeRegister(manager.name)]
           case keyword.no:
             manager.name = ''
             await updateManager(manager)

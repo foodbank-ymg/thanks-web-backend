@@ -1,25 +1,25 @@
 import {
   askName,
   askNameAgain,
+  completeRegister,
   confirmName,
-  decideName,
   tellWelcome,
   tellWelcomeBack,
 } from './setup'
 
-test('line setup message', async () => {
+test('line common/setup message', async () => {
   expect(tellWelcome()).toMatchObject({
     type: 'text',
     text: '友だち追加ありがとうございます。\nこのアカウントでは、文章や画像をチャット送っていただくだけで記事投稿が出来ます。',
   })
   expect(askName()).toMatchObject({
     type: 'text',
-    text: '早速ですが、お名前を教えてください。※この情報はWebサイトには表示されません。',
+    text: 'お名前を教えてください。（サイトには公開されません）',
   })
 
   expect(tellWelcomeBack('name')).toMatchObject({
     type: 'text',
-    text: 'nameさん、おかえりなさい。',
+    text: '「name」さん、おかえりなさい。',
   })
   expect(confirmName('hoge')).toMatchObject({
     type: 'template',
@@ -30,7 +30,7 @@ test('line setup message', async () => {
         { type: 'message', label: 'はい', text: 'はい' },
         { type: 'message', label: 'いいえ', text: 'いいえ' },
       ],
-      text: 'お名前はhogeでよろしいですか？',
+      text: 'お名前は「hoge」でよろしいですか？',
     },
   })
   expect(askNameAgain()).toMatchObject({
@@ -38,5 +38,8 @@ test('line setup message', async () => {
     text: 'もう一度お名前を教えてください。',
   })
 
-  expect(decideName('foo')).toMatchObject({ type: 'text', text: 'fooさん、よろしくお願いします。' })
+  expect(completeRegister('foo')).toMatchObject({
+    type: 'text',
+    text: '登録が完了しました。「foo」さん、ありがとうございました。投稿することができます。',
+  })
 })
