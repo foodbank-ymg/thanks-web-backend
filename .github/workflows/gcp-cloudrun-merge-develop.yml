@@ -6,6 +6,7 @@ on:
 name: Build and Deploy to Cloud Run on merge to branch 'develop'
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_DEV }}
+  REGION: ${{ secrets.GCP_REGION_DEV }}
   SERVICE_NAME: ${{ secrets.SERVICE_NAME_DEV }}
 
 jobs:
