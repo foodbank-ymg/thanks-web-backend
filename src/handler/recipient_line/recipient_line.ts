@@ -1,16 +1,16 @@
 import { Client, Message, MessageEvent, TextMessage, WebhookEvent } from '@line/bot-sdk'
 import { Request, Response } from 'express'
-import { status } from '../../consts/constants'
+import { recipientStatus } from '../../consts/constants'
 import { keyword } from '../../consts/keyword'
 import { phrase } from '../../consts/phrase'
-import { getRecipientById } from '../../lib/firestore/recipient'
+import { getRecipientGroupById } from '../../lib/firestore/recipientGroup'
 import {
   createRecipientMember,
   getRecipientByLineId,
   updateRecipientMember,
-} from '../../lib/firestore/recipientMember'
+} from '../../lib/firestore/recipient'
 import { TextTemplate } from '../../lib/line/template'
-import { RecipientMember } from '../../types/recipientMember'
+import { Recipient } from '../../types/recipient'
 import {
   askName,
   askNameAgain,
@@ -36,8 +36,8 @@ export class recipientLineHandler {
           if (err instanceof Error) {
             console.error(err)
             // LINEでエラーの旨を伝えたいので一旦コメントアウト
-            // return res.status(500).json({
-            // status: 'error',
+            // return res.recipientStatus(500).json({
+            // recipientStatus: 'error',
             //});
             // 異常時は定型メッセージで応答
             return [TextTemplate(phrase.systemError)]
@@ -64,11 +64,10 @@ export class recipientLineHandler {
 }
 
 const handleEvent = async (event: WebhookEvent): Promise<Message[] | void> => {
-  let recipient_ = await getRecipientByLineId(event.source.userId)
-  if (recipient_ === undefined) {
-    recipient_ = await createRecipientMember(event.source.userId)
+  let recipient = await getRecipientByLineId(event.source.userId)
+  if (recipient === undefined) {
+    recipient = await createRecipientMember(event.source.userId)
   }
-  const recipient = recipient_ // to make manager constant
   //const action = react(event, manager)
   //action(manager, message)
   if (event.type === 'unfollow') {
@@ -76,12 +75,12 @@ const handleEvent = async (event: WebhookEvent): Promise<Message[] | void> => {
     await updateRecipientMember(recipient)
     return Promise.resolve()
   } else if (event.type === 'follow') {
-    if (recipient.name === '' || recipient.status === status.inputName) {
-      recipient.status = status.inputName
+    if (recipient.name === '') {
+      recipient.status = recipientStatus.INPUT_NAME
       await updateRecipientMember(recipient)
       return [tellWelcome(), askName()]
-    } else if (recipient.recipientId === '' || recipient.status === status.inputRecipientId) {
-      recipient.status = status.inputRecipientId
+    } else if (recipient.recipientGroupId === '') {
+      recipient.status = recipientStatus.INPUT_RECIPIENT_ID
       await updateRecipientMember(recipient)
       return [tellWelcome(), askRecipientId()]
     } else {
@@ -95,22 +94,15 @@ const handleEvent = async (event: WebhookEvent): Promise<Message[] | void> => {
   }
 }
 
-const react = async (event: MessageEvent, recipient: RecipientMember): Promise<Message[]> => {
+const react = async (event: MessageEvent, recipient: Recipient): Promise<Message[]> => {
   if (event.message.type === 'text') {
     switch (recipient.status) {
-      case status.inputName:
+      case recipientStatus.INPUT_NAME:
         switch (event.message.text) {
           case keyword.yes:
-            if (recipient.recipientId === '') {
-              recipient.status = status.inputRecipientId
-              await updateRecipientMember(recipient)
-              return [askRecipientId()]
-            } else {
-              recipient.status = status.idle
-              recipient.enable = true
-              await updateRecipientMember(recipient)
-              return [completeRegister(recipient.name)]
-            }
+            recipient.status = recipientStatus.INPUT_RECIPIENT_ID
+            await updateRecipientMember(recipient)
+            return [askRecipientId()]
           case keyword.no:
             recipient.name = ''
             await updateRecipientMember(recipient)
@@ -120,13 +112,13 @@ const react = async (event: MessageEvent, recipient: RecipientMember): Promise<M
             await updateRecipientMember(recipient)
             return [confirmName(recipient.name)]
         }
-      case status.inputRecipientId:
-        const recipientGroup = await getRecipientById(event.message.text)
+      case recipientStatus.INPUT_RECIPIENT_ID:
+        const recipientGroup = await getRecipientGroupById(event.message.text)
         if (recipientGroup === undefined) {
           return [askRecipientIdAgain()]
         } else {
-          recipient.recipientId = recipientGroup.id
-          recipient.status = status.idle
+          recipient.recipientGroupId = recipientGroup.id
+          recipient.status = recipientStatus.IDLE
           recipient.enable = true
           await updateRecipientMember(recipient)
           return [completeRegister(recipient.name)]
@@ -134,7 +126,7 @@ const react = async (event: MessageEvent, recipient: RecipientMember): Promise<M
     }
   } else {
     switch (recipient.status) {
-      case status.inputName:
+      case recipientStatus.INPUT_NAME:
         return [askNameAgain()]
     }
   }
