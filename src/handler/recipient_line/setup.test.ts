@@ -16,7 +16,7 @@ test('line recipient_line/setup message', async () => {
   })
   expect(askName()).toMatchObject({
     type: 'text',
-    text: 'お名前を教えてください。（サイトには公開されません）',
+    text: 'まず、お名前を教えてください。（サイトには公開されません）',
   })
 
   expect(tellWelcomeBack('name')).toMatchObject({

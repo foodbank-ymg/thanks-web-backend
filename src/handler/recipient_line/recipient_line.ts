@@ -64,7 +64,7 @@ export class recipientLineHandler {
   }
 }
 
-const handleEvent = async (event: WebhookEvent): Promise<Message[] | void> => {
+export const handleEvent = async (event: WebhookEvent): Promise<Message[] | void> => {
   let recipient = await getRecipientByLineId(event.source.userId)
   if (recipient === undefined) {
     recipient = await createRecipient(event.source.userId)

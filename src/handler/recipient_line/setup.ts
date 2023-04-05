@@ -7,7 +7,7 @@ export const tellWelcome = () => {
 }
 
 export const askName = () => {
-  return TextTemplate('お名前を教えてください。（サイトには公開されません）')
+  return TextTemplate('まず、お名前を教えてください。（サイトには公開されません）')
 }
 
 export const tellWelcomeBack = (name: string) => {
@@ -27,7 +27,6 @@ export const completeRegister = (name: string) => {
     `登録が完了しました。「${name}」さん、ありがとうございました。投稿することができます。`,
   )
 }
-
 
 export const askRecipientId = () => {
   return TextTemplate('フードバンク山口から払い出された団体IDを入力してください。')

@@ -1,3 +1,4 @@
+import { recipientStatusType } from '../consts/constants'
 
 type RecipientGroup = {
   id: string

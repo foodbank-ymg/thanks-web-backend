@@ -7,14 +7,14 @@ import {
   tellWelcomeBack,
 } from './setup'
 
-test('line common/setup message', async () => {
+test('line manager_line/setup message', async () => {
   expect(tellWelcome()).toMatchObject({
     type: 'text',
-    text: '友だち追加ありがとうございます。\nこのアカウントでは、文章や画像をチャット送っていただくだけで記事投稿が出来ます。',
+    text: '友だち追加ありがとうございます。\nこのアカウントでは、投稿された記事の管理ができます。',
   })
   expect(askName()).toMatchObject({
     type: 'text',
-    text: 'お名前を教えてください。（サイトには公開されません）',
+    text: 'まず、お名前を教えてください。（サイトには公開されません）',
   })
 
   expect(tellWelcomeBack('name')).toMatchObject({
@@ -40,6 +40,6 @@ test('line common/setup message', async () => {
 
   expect(completeRegister('foo')).toMatchObject({
     type: 'text',
-    text: '登録が完了しました。「foo」さん、ありがとうございました。投稿することができます。',
+    text: '登録が完了しました。「foo」さん、ありがとうございました。投稿された記事の管理をすることができます。',
   })
 })
