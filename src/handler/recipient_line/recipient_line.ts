@@ -5,9 +5,9 @@ import { keyword } from '../../consts/keyword'
 import { phrase } from '../../consts/phrase'
 import { getRecipientGroupById } from '../../lib/firestore/recipientGroup'
 import {
-  createRecipientMember,
+  createRecipient,
   getRecipientByLineId,
-  updateRecipientMember,
+  updateRecipient,
 } from '../../lib/firestore/recipient'
 import { TextTemplate } from '../../lib/line/template'
 import { Recipient } from '../../types/recipient'
@@ -18,8 +18,9 @@ import {
   confirmName,
   tellWelcome,
   tellWelcomeBack,
-} from '../common/setup'
-import { askRecipientId, askRecipientIdAgain } from './setup'
+  askRecipientId,
+  askRecipientIdAgain,
+} from './setup'
 
 export class recipientLineHandler {
   constructor(private client: Client) {}
@@ -66,26 +67,26 @@ export class recipientLineHandler {
 const handleEvent = async (event: WebhookEvent): Promise<Message[] | void> => {
   let recipient = await getRecipientByLineId(event.source.userId)
   if (recipient === undefined) {
-    recipient = await createRecipientMember(event.source.userId)
+    recipient = await createRecipient(event.source.userId)
   }
   //const action = react(event, manager)
   //action(manager, message)
   if (event.type === 'unfollow') {
     recipient.enable = false
-    await updateRecipientMember(recipient)
+    await updateRecipient(recipient)
     return Promise.resolve()
   } else if (event.type === 'follow') {
     if (recipient.name === '') {
       recipient.status = recipientStatus.INPUT_NAME
-      await updateRecipientMember(recipient)
+      await updateRecipient(recipient)
       return [tellWelcome(), askName()]
     } else if (recipient.recipientGroupId === '') {
       recipient.status = recipientStatus.INPUT_RECIPIENT_ID
-      await updateRecipientMember(recipient)
+      await updateRecipient(recipient)
       return [tellWelcome(), askRecipientId()]
     } else {
       recipient.enable = true
-      await updateRecipientMember(recipient)
+      await updateRecipient(recipient)
       return [tellWelcomeBack(recipient.name)]
     }
   } else if (event.type === 'message') {
@@ -101,15 +102,15 @@ const react = async (event: MessageEvent, recipient: Recipient): Promise<Message
         switch (event.message.text) {
           case keyword.yes:
             recipient.status = recipientStatus.INPUT_RECIPIENT_ID
-            await updateRecipientMember(recipient)
+            await updateRecipient(recipient)
             return [askRecipientId()]
           case keyword.no:
             recipient.name = ''
-            await updateRecipientMember(recipient)
+            await updateRecipient(recipient)
             return [askNameAgain()]
           default:
             recipient.name = event.message.text
-            await updateRecipientMember(recipient)
+            await updateRecipient(recipient)
             return [confirmName(recipient.name)]
         }
       case recipientStatus.INPUT_RECIPIENT_ID:
@@ -120,7 +121,7 @@ const react = async (event: MessageEvent, recipient: Recipient): Promise<Message
           recipient.recipientGroupId = recipientGroup.id
           recipient.status = recipientStatus.IDLE
           recipient.enable = true
-          await updateRecipientMember(recipient)
+          await updateRecipient(recipient)
           return [completeRegister(recipient.name)]
         }
     }

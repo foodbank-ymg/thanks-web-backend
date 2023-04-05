@@ -1,18 +1,19 @@
 import { db } from './firestore'
 import { DocumentData, QueryDocumentSnapshot } from 'firebase-admin/firestore'
+import { RecipientGroup } from '../../types/recipientGroup'
 
 export const getRecipientGroupById = async (id: string) => {
   const recipient = (
     await db
-      .collection('recipients')
+      .collection('recipientGroups')
       .doc(id)
-      .withConverter<RecipientGroup>(recipientConverter)
+      .withConverter<RecipientGroup>(recipientGroupConverter)
       .get()
   ).data()
   return recipient as RecipientGroup | undefined
 }
 
-const recipientConverter = {
+const recipientGroupConverter = {
   toFirestore(recipient: RecipientGroup): DocumentData {
     return {
       id: recipient.id,

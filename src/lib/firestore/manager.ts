@@ -2,7 +2,7 @@ import { Manager } from '../../types/managers'
 import { db } from './firestore'
 import { DocumentData, QueryDocumentSnapshot } from 'firebase-admin/firestore'
 import { makeId } from '../../utils/random/random'
-import { status } from '../../consts/constants'
+import { managerStatus } from '../../consts/constants'
 
 export const getManagerByLineId = async (lineId: string) => {
   let manager = undefined
@@ -47,7 +47,7 @@ export const createManager = async (lineId: string) => {
     id: `m-${makeId(4)}`,
     lineId: lineId,
     name: '',
-    status: status.inputName,
+    status: managerStatus.INPUT_NAME,
     enable: false,
     createdAt: new Date(),
   }

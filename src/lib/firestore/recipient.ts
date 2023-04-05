@@ -8,9 +8,9 @@ export const getRecipientByLineId = async (lineId: string) => {
   let recipient = undefined
   ;(
     await db
-      .collection('recipientMembers')
+      .collection('recipients')
       .where('lineId', '==', lineId)
-      .withConverter<Recipient>(recipientMemberConverter)
+      .withConverter<Recipient>(recipientConverter)
       .get()
   ).forEach((doc) => {
     recipient = doc.data()
@@ -18,7 +18,7 @@ export const getRecipientByLineId = async (lineId: string) => {
   return recipient as Recipient | undefined
 }
 
-const recipientMemberConverter = {
+const recipientConverter = {
   toFirestore(recipient: Recipient): DocumentData {
     return {
       id: recipient.id,
@@ -44,9 +44,9 @@ const recipientMemberConverter = {
   },
 }
 
-export const createRecipientMember = async (lineId: string) => {
+export const createRecipient = async (lineId: string) => {
   const newRecipient: Recipient = {
-    id: `rm-${makeId(4)}`,
+    id: `r-${makeId(4)}`,
     recipientGroupId: '',
     lineId: lineId,
     name: '',
@@ -54,10 +54,10 @@ export const createRecipientMember = async (lineId: string) => {
     enable: false,
     createdAt: new Date(),
   }
-  updateRecipientMember(newRecipient)
-  console.info(`create new recipientMember${newRecipient}`)
+  updateRecipient(newRecipient)
+  console.info(`create new recipient${newRecipient}`)
   return newRecipient
 }
-export const updateRecipientMember = async (recipient: Recipient) => {
-  await db.collection('recipientMembers').doc(recipient.id).set(recipient)
+export const updateRecipient = async (recipient: Recipient) => {
+  await db.collection('recipients').doc(recipient.id).set(recipient)
 }

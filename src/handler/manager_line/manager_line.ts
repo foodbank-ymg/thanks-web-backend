@@ -1,6 +1,6 @@
 import { Client, Message, MessageEvent, WebhookEvent } from '@line/bot-sdk'
 import { Request, Response } from 'express'
-import { status } from '../../consts/constants'
+import { managerStatus } from '../../consts/constants'
 import { keyword } from '../../consts/keyword'
 import { phrase } from '../../consts/phrase'
 import { createManager, getManagerByLineId, updateManager } from '../../lib/firestore/manager'
@@ -13,7 +13,7 @@ import {
   confirmName,
   tellWelcome,
   tellWelcomeBack,
-} from '../common/setup'
+} from './setup'
 
 export class managerLineHandler {
   constructor(private client: Client) {
@@ -72,7 +72,7 @@ const handleEvent = async (event: WebhookEvent): Promise<Message[] | void> => {
     await updateManager(manager)
     return Promise.resolve()
   } else if (event.type === 'follow') {
-    if (manager.name === '' || manager.status === status.inputName) {
+    if (manager.name === '' || manager.status === managerStatus.INPUT_NAME) {
       return [tellWelcome(), askName()]
     } else {
       manager.enable = true
@@ -88,10 +88,10 @@ const handleEvent = async (event: WebhookEvent): Promise<Message[] | void> => {
 const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> => {
   if (event.message.type === 'text') {
     switch (manager.status) {
-      case status.inputName:
+      case managerStatus.INPUT_NAME:
         switch (event.message.text) {
           case keyword.yes:
-            manager.status = status.idle
+            manager.status = managerStatus.IDLE
             manager.enable = true
             await updateManager(manager)
             return [completeRegister(manager.name)]
@@ -107,7 +107,7 @@ const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> 
     }
   } else {
     switch (manager.status) {
-      case status.inputName:
+      case managerStatus.INPUT_NAME:
         return [askNameAgain()]
     }
   }
