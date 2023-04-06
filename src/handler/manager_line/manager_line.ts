@@ -89,6 +89,12 @@ const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> 
   if (event.message.type === 'text') {
     switch (manager.status) {
       case managerStatus.INPUT_NAME:
+        manager.status = managerStatus.CONFIRM_NAME
+        manager.name = event.message.text
+        await updateManager(manager)
+        return [confirmName(manager.name)]
+
+      case managerStatus.CONFIRM_NAME:
         switch (event.message.text) {
           case keyword.yes:
             manager.status = managerStatus.IDLE
@@ -100,9 +106,7 @@ const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> 
             await updateManager(manager)
             return [askNameAgain()]
           default:
-            manager.name = event.message.text
-            await updateManager(manager)
-            return [confirmName(manager.name)]
+            return [TextTemplate(phrase.yesOrNo)]
         }
     }
   } else {

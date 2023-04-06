@@ -100,6 +100,11 @@ const react = async (event: MessageEvent, recipient: Recipient): Promise<Message
   if (event.message.type === 'text') {
     switch (recipient.status) {
       case recipientStatus.INPUT_NAME:
+        recipient.status = recipientStatus.CONFIRM_NAME
+        recipient.name = event.message.text
+        await updateRecipient(recipient)
+        return [confirmName(recipient.name)]
+      case recipientStatus.CONFIRM_NAME:
         switch (event.message.text) {
           case keyword.yes:
             recipient.status = recipientStatus.INPUT_RECIPIENT_ID
@@ -110,9 +115,7 @@ const react = async (event: MessageEvent, recipient: Recipient): Promise<Message
             await updateRecipient(recipient)
             return [askNameAgain()]
           default:
-            recipient.name = event.message.text
-            await updateRecipient(recipient)
-            return [confirmName(recipient.name)]
+            return [TextTemplate(phrase.yesOrNo)]
         }
       case recipientStatus.INPUT_RECIPIENT_ID:
         const recipientGroup = await getRecipientGroupById(event.message.text)
