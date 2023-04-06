@@ -1,4 +1,5 @@
-import { recipientStatusType } from '../../consts/constants'
+import { WebhookEvent } from '@line/bot-sdk'
+import { recipientStatus, recipientStatusType } from '../../consts/constants'
 import { getRecipientByLineId } from '../../lib/firestore/recipient'
 import { Recipient } from '../../types/recipient'
 import { handleEvent } from './recipient_line'
@@ -19,7 +20,14 @@ const getRecipient = (
   }
 }
 
-const getRecipient_ = jest.fn(() => getRecipient('', '', '初期状態'))
+const getEvent = (type: string) => {
+  return {
+    type: type,
+    source: { userId: 'Uada2abc97aaaaae0a223eb4ddcbbbbbb' },
+  } as WebhookEvent
+}
+
+const getRecipient_ = jest.fn()
 
 jest.mock('../../lib/firestore/recipient', () => ({
   updateRecipient: jest.fn(),
@@ -27,13 +35,10 @@ jest.mock('../../lib/firestore/recipient', () => ({
 }))
 
 describe('recipient_line/recipient_line', () => {
+  const event = getEvent('follow')
   it('!name_!id', async () => {
-    getRecipient_.mockImplementation(() => getRecipient('', '', '初期状態'))
+    getRecipient_.mockImplementation(() => getRecipient('', '', recipientStatus.NONE))
 
-    const event = {
-      type: 'follow',
-      source: { userId: 'Uada2abc97aaaaae0a223eb4ddcbbbbbb' },
-    } as any
     expect(await handleEvent(event)).toMatchObject([
       {
         type: 'text',
@@ -44,12 +49,8 @@ describe('recipient_line/recipient_line', () => {
   })
 
   it('name_!id', async () => {
-    getRecipient_.mockReturnValue(getRecipient('', '太郎', '初期状態'))
+    getRecipient_.mockReturnValue(getRecipient('', '太郎', recipientStatus.NONE))
 
-    const event = {
-      type: 'follow',
-      source: { userId: 'Uada2abc97aaaaae0a223eb4ddcbbbbbb' },
-    } as any
     expect(await handleEvent(event)).toMatchObject([
       {
         type: 'text',
@@ -60,12 +61,8 @@ describe('recipient_line/recipient_line', () => {
   })
 
   it('name_id', async () => {
-    getRecipient_.mockReturnValue(getRecipient('rg-0001', '太郎', '初期状態'))
+    getRecipient_.mockReturnValue(getRecipient('rg-0001', '太郎', recipientStatus.NONE))
 
-    const event = {
-      type: 'follow',
-      source: { userId: 'Uada2abc97aaaaae0a223eb4ddcbbbbbb' },
-    } as any
     expect(await handleEvent(event)).toMatchObject([
       {
         text: '「太郎」さん、おかえりなさい。',
