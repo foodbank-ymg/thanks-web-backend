@@ -111,6 +111,7 @@ const react = async (event: MessageEvent, recipient: Recipient): Promise<Message
             await updateRecipient(recipient)
             return [askRecipientId()]
           case keyword.no:
+            recipient.status = recipientStatus.INPUT_NAME
             recipient.name = ''
             await updateRecipient(recipient)
             return [askNameAgain()]

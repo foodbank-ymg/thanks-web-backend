@@ -102,6 +102,7 @@ const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> 
             await updateManager(manager)
             return [completeRegister(manager.name)]
           case keyword.no:
+            manager.status = managerStatus.INPUT_NAME
             manager.name = ''
             await updateManager(manager)
             return [askNameAgain()]
