@@ -69,6 +69,7 @@ export const handleEvent = async (event: WebhookEvent): Promise<Message[] | void
   if (recipient === undefined) {
     recipient = await createRecipient(event.source.userId)
   }
+
   //const action = react(event, manager)
   //action(manager, message)
   if (event.type === 'unfollow') {
