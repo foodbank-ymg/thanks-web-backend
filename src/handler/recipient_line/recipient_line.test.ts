@@ -34,9 +34,9 @@ jest.mock('../../lib/firestore/recipient', () => ({
   getRecipientByLineId: () => getRecipient_(),
 }))
 
-describe('recipient_line/recipient_line', () => {
+describe('recipient_line/recipient_line フォロー', () => {
   const event = getEvent('follow')
-  it('!name_!id', async () => {
+  it(':名前入力から再開', async () => {
     getRecipient_.mockImplementation(() => getRecipient('', '', recipientStatus.NONE))
 
     expect(await handleEvent(event)).toMatchObject([
@@ -48,7 +48,7 @@ describe('recipient_line/recipient_line', () => {
     ])
   })
 
-  it('name_!id', async () => {
+  it(':団体ID入力から再開', async () => {
     getRecipient_.mockReturnValue(getRecipient('', '太郎', recipientStatus.NONE))
 
     expect(await handleEvent(event)).toMatchObject([
@@ -60,7 +60,7 @@ describe('recipient_line/recipient_line', () => {
     ])
   })
 
-  it('name_id', async () => {
+  it(':即復帰', async () => {
     getRecipient_.mockReturnValue(getRecipient('rg-0001', '太郎', recipientStatus.NONE))
 
     expect(await handleEvent(event)).toMatchObject([
