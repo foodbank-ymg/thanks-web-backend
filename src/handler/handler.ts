@@ -30,9 +30,7 @@ app.post('/manager-line', managerMiddleware, (req, res) =>
   new managerLineHandler(managerClient).handle(req, res),
 ) //* without [(req, res) =>] it was not working. temporary fix.
 
-app.post('/recipient-line', recipientMiddleware, (req, res) =>
-  new recipientLineHandler(recipientClient).handle(req, res),
-)
+app.post('/recipient-line', recipientMiddleware, new recipientLineHandler(recipientClient).handle)
 
 // TODO: 仕様が固まり次第着手します
 // app.post('/batch', middleware, (req, res) => lineEvent(client, req, res));
