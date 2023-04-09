@@ -2,12 +2,19 @@ import { Manager } from '../../types/managers'
 import { db } from './firestore'
 import { DocumentData, QueryDocumentSnapshot } from 'firebase-admin/firestore'
 import { makeId } from '../../utils/random/random'
-import { status } from '../../consts/constants'
+import { managerStatus } from '../../consts/constants'
 
 export const getManagerByLineId = async (lineId: string) => {
-  const manager = (
-    await db.collection('managers').doc(lineId).withConverter<Manager>(managerConverter).get()
-  ).data()
+  let manager = undefined
+  ;(
+    await db
+      .collection('managers')
+      .where('lineId', '==', lineId)
+      .withConverter<Manager>(managerConverter)
+      .get()
+  ).forEach((doc) => {
+    manager = doc.data()
+  })
   return manager as Manager | undefined
 }
 
@@ -40,14 +47,14 @@ export const createManager = async (lineId: string) => {
     id: `m-${makeId(4)}`,
     lineId: lineId,
     name: '',
-    status: status.inputName,
+    status: managerStatus.INPUT_NAME,
     enable: false,
     createdAt: new Date(),
   }
   updateManager(newManager)
-  console.info(`create new user${newManager}`)
+  console.info(`create new manager${newManager}`)
   return newManager
 }
 export const updateManager = async (manager: Manager) => {
-  await db.collection('managers').doc(manager.lineId).set(manager)
+  await db.collection('managers').doc(manager.id).set(manager)
 }
