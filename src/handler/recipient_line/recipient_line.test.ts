@@ -1,6 +1,5 @@
 import { WebhookEvent } from '@line/bot-sdk'
 import { recipientStatus, recipientStatusType } from '../../consts/constants'
-import { getRecipientByLineId } from '../../lib/firestore/recipient'
 import { Recipient } from '../../types/recipient'
 import { handleEvent } from './recipient_line'
 
