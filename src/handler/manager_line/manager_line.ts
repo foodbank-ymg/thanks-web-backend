@@ -1,6 +1,6 @@
 import { Client, Message, MessageEvent, WebhookEvent } from '@line/bot-sdk'
 import { Request, Response } from 'express'
-import { status } from '../../consts/constants'
+import { managerStatus } from '../../consts/constants'
 import { keyword } from '../../consts/keyword'
 import { phrase } from '../../consts/phrase'
 import { createManager, getManagerByLineId, updateManager } from '../../lib/firestore/manager'
@@ -9,8 +9,8 @@ import { Manager } from '../../types/managers'
 import {
   askName,
   askNameAgain,
+  completeRegister,
   confirmName,
-  decideName,
   tellWelcome,
   tellWelcomeBack,
 } from './setup'
@@ -72,7 +72,7 @@ const handleEvent = async (event: WebhookEvent): Promise<Message[] | void> => {
     await updateManager(manager)
     return Promise.resolve()
   } else if (event.type === 'follow') {
-    if (manager.name === '' || manager.status === status.inputName) {
+    if (manager.name === '' || manager.status === managerStatus.INPUT_NAME) {
       return [tellWelcome(), askName()]
     } else {
       manager.enable = true
@@ -88,26 +88,31 @@ const handleEvent = async (event: WebhookEvent): Promise<Message[] | void> => {
 const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> => {
   if (event.message.type === 'text') {
     switch (manager.status) {
-      case status.inputName:
+      case managerStatus.INPUT_NAME:
+        manager.status = managerStatus.CONFIRM_NAME
+        manager.name = event.message.text
+        await updateManager(manager)
+        return [confirmName(manager.name)]
+
+      case managerStatus.CONFIRM_NAME:
         switch (event.message.text) {
           case keyword.yes:
-            manager.status = status.idle
+            manager.status = managerStatus.IDLE
             manager.enable = true
             await updateManager(manager)
-            return [decideName(manager.name)]
+            return [completeRegister(manager.name)]
           case keyword.no:
+            manager.status = managerStatus.INPUT_NAME
             manager.name = ''
             await updateManager(manager)
             return [askNameAgain()]
           default:
-            manager.name = event.message.text
-            await updateManager(manager)
-            return [confirmName(manager.name)]
+            return [TextTemplate(phrase.yesOrNo)]
         }
     }
   } else {
     switch (manager.status) {
-      case status.inputName:
+      case managerStatus.INPUT_NAME:
         return [askNameAgain()]
     }
   }
