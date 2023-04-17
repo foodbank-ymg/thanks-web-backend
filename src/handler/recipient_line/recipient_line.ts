@@ -1,6 +1,6 @@
 import { Client, Message, MessageEvent, TextMessage, WebhookEvent } from '@line/bot-sdk'
 import { Request, Response } from 'express'
-import { recipientStatus } from '../../consts/constants'
+import { postStatus, recipientStatus } from '../../consts/constants'
 import { keyword } from '../../consts/keyword'
 import { phrase } from '../../consts/phrase'
 import { getRecipientGroupById } from '../../lib/firestore/recipientGroup'
@@ -9,7 +9,7 @@ import {
   getRecipientByLineId,
   updateRecipient,
 } from '../../lib/firestore/recipient'
-import { TextTemplate } from '../../lib/line/template'
+import { QuickReplyTemplate, TextTemplate } from '../../lib/line/template'
 import { Recipient } from '../../types/recipient'
 import {
   askName,
@@ -21,6 +21,10 @@ import {
   askRecipientId,
   askRecipientIdAgain,
 } from './setup'
+import { reactPostImage, reactPostText } from './post_line'
+import { createPost, getPostById, getPostByRecipientId, updatePost } from '../../lib/firestore/post'
+import { askSubject } from './post'
+import { downloadImageById } from '../../lib/line/image'
 
 export class recipientLineHandler {
   constructor(private client: Client) {}
@@ -33,7 +37,7 @@ export class recipientLineHandler {
       events.map(async (event: WebhookEvent) => {
         // handleEventが必要なDB処理などを実行しユーザー返答Message配列のPromiseを返してくる。
         // this.clientは渡さなくてよくなる
-        const messages = await handleEvent(event).catch((err) => {
+        const messages = await handleEvent(this.client, event).catch((err) => {
           if (err instanceof Error) {
             console.error(err)
             // LINEでエラーの旨を伝えたいので一旦コメントアウト
@@ -64,7 +68,10 @@ export class recipientLineHandler {
   }
 }
 
-export const handleEvent = async (event: WebhookEvent): Promise<Message[] | void> => {
+export const handleEvent = async (
+  client: Client,
+  event: WebhookEvent,
+): Promise<Message[] | void> => {
   let recipient = await getRecipientByLineId(event.source.userId)
   if (recipient === undefined) {
     recipient = await createRecipient(event.source.userId)
@@ -91,14 +98,33 @@ export const handleEvent = async (event: WebhookEvent): Promise<Message[] | void
       return [tellWelcomeBack(recipient.name)]
     }
   } else if (event.type === 'message') {
-    const messages = await react(event, recipient)
+    const messages = await react(client, event, recipient)
     return messages
   }
 }
 
-const react = async (event: MessageEvent, recipient: Recipient): Promise<Message[]> => {
+const react = async (
+  client: Client,
+  event: MessageEvent,
+  recipient: Recipient,
+): Promise<Message[]> => {
   if (event.message.type === 'text') {
     switch (recipient.status) {
+      case recipientStatus.IDLE:
+        switch (event.message.text) {
+          case keyword.POST:
+            recipient.status = recipientStatus.INPUT_POST
+            let post = await getPostById(event.source.userId)
+            if (post === undefined) {
+              post = await createPost(recipient)
+              post.status = postStatus.INPUT_SUBJECT
+              await updatePost(post)
+            }
+            await updateRecipient(recipient)
+            return [askSubject()]
+          default:
+            return [QuickReplyTemplate('こんにちは！何をしますか?', ['記事投稿', '何もしない'])]
+        }
       case recipientStatus.INPUT_NAME:
         recipient.status = recipientStatus.CONFIRM_NAME
         recipient.name = event.message.text
@@ -106,11 +132,11 @@ const react = async (event: MessageEvent, recipient: Recipient): Promise<Message
         return [confirmName(recipient.name)]
       case recipientStatus.CONFIRM_NAME:
         switch (event.message.text) {
-          case keyword.yes:
+          case keyword.YES:
             recipient.status = recipientStatus.INPUT_RECIPIENT_ID
             await updateRecipient(recipient)
             return [askRecipientId()]
-          case keyword.no:
+          case keyword.NO:
             recipient.status = recipientStatus.INPUT_NAME
             recipient.name = ''
             await updateRecipient(recipient)
@@ -129,6 +155,16 @@ const react = async (event: MessageEvent, recipient: Recipient): Promise<Message
           await updateRecipient(recipient)
           return [completeRegister(recipient.name)]
         }
+      case recipientStatus.INPUT_POST:
+        let post = await getPostByRecipientId(recipient.id)
+        return reactPostText(event.message.text, post)
+    }
+  } else if (event.message.type === 'image') {
+    switch (recipient.status) {
+      case recipientStatus.INPUT_POST:
+        let post = await getPostByRecipientId(recipient.id)
+        let image = await downloadImageById(client, event.message.id)
+        return reactPostImage(image, post)
     }
   } else {
     switch (recipient.status) {
@@ -136,5 +172,6 @@ const react = async (event: MessageEvent, recipient: Recipient): Promise<Message
         return [askNameAgain()]
     }
   }
-  return [TextTemplate(phrase.dontHaveMessage)]
+
+  return [TextTemplate('すみません。この操作はできません。')]
 }
