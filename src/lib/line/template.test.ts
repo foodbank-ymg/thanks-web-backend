@@ -1,5 +1,5 @@
 import { keyword } from '../../consts/keyword'
-import { ConfirmTemplate, TextTemplate } from './template'
+import { ConfirmTemplate, QuickReplyTemplate, TextTemplate } from './template'
 
 describe(`line line/template `, () => {
   it(':TextTemplate', () => {
@@ -42,6 +42,35 @@ describe(`line line/template `, () => {
           text: `確認ダイアログテスト任意選択肢`,
         },
       })
+    })
+  })
+
+  it(':QuickReplyTemplate', () => {
+    expect(QuickReplyTemplate('クイックリプライ', ['A', 'B'])).toMatchObject({
+      type: 'text',
+      text: 'クイックリプライ',
+      quickReply: {
+        items: [
+          {
+            type: 'action', // ③
+            imageUrl: 'https://example.com/sushi.png',
+            action: {
+              type: 'message',
+              label: 'A',
+              text: 'A',
+            },
+          },
+          {
+            type: 'action', // ③
+            imageUrl: 'https://example.com/sushi.png',
+            action: {
+              type: 'message',
+              label: 'B',
+              text: 'B',
+            },
+          },
+        ],
+      },
     })
   })
 })
