@@ -2,7 +2,7 @@ import { Message } from '@line/bot-sdk'
 import { Recipient } from '../../types/recipient'
 import { Post } from '../../types/post'
 import { postStatus, recipientStatus } from '../../consts/constants'
-import { ConfirmTemplate, TextTemplate } from '../../lib/line/template'
+import { TextTemplate } from '../../lib/line/template'
 import { addImageTransaction, deletePost, updatePost } from '../../lib/firestore/post'
 import {
   askBody,
