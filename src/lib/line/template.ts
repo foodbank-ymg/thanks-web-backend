@@ -4,7 +4,7 @@ import { keyword } from '../../consts/keyword'
 export const ConfirmTemplate = (text: string, alt: string, option?: string[]) => {
   let yes = keyword.YES
   let no = keyword.NO
-  if (option === undefined) {
+  if (typeof option !== 'undefined') {
     yes = option[0]
     no = option[1]
   }

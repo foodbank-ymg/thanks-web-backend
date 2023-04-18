@@ -27,6 +27,7 @@ export const postStatus = {
   INPUT_IMAGE: '画像添付',
   CONFIRM_IMAGE: '画像確認',
   CONFIRM_SUBMIT: '送信確認',
+  WAITING_REVIEW: '確認待ち',
 }
 
 export type postStatusType = (typeof postStatus)[keyof typeof postStatus]

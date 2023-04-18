@@ -96,12 +96,12 @@ const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> 
 
       case managerStatus.CONFIRM_NAME:
         switch (event.message.text) {
-          case keyword.yes:
+          case keyword.YES:
             manager.status = managerStatus.IDLE
             manager.enable = true
             await updateManager(manager)
             return [completeRegister(manager.name)]
-          case keyword.no:
+          case keyword.NO:
             manager.status = managerStatus.INPUT_NAME
             manager.name = ''
             await updateManager(manager)

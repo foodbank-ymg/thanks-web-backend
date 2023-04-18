@@ -22,7 +22,12 @@ import {
   askRecipientIdAgain,
 } from './setup'
 import { reactPostImage, reactPostText } from './post_line'
-import { createPost, getPostById, getPostByRecipientId, updatePost } from '../../lib/firestore/post'
+import {
+  createPost,
+  getPostById,
+  getWorkingPostByRecipientId,
+  updatePost,
+} from '../../lib/firestore/post'
 import { askSubject } from './post'
 import { downloadImageById } from '../../lib/line/image'
 
@@ -156,13 +161,13 @@ const react = async (
           return [completeRegister(recipient.name)]
         }
       case recipientStatus.INPUT_POST:
-        let post = await getPostByRecipientId(recipient.id)
-        return reactPostText(event.message.text, post)
+        let post = await getWorkingPostByRecipientId(recipient.id)
+        return reactPostText(event.message.text, recipient, post)
     }
   } else if (event.message.type === 'image') {
     switch (recipient.status) {
       case recipientStatus.INPUT_POST:
-        let post = await getPostByRecipientId(recipient.id)
+        let post = await getWorkingPostByRecipientId(recipient.id)
         let image = await downloadImageById(client, event.message.id)
         return reactPostImage(image, post)
     }
