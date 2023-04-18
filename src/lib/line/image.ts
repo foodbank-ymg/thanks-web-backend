@@ -1,7 +1,8 @@
 import { Client } from '@line/bot-sdk'
+import { client } from '../../handler/recipient_line/recipient_line'
 
 //download image by event.message.id
-export const downloadImageById = async (client: Client, id: string): Promise<Buffer> => {
+export const downloadImageById = async (id: string): Promise<Buffer> => {
   return new Promise((resolve, reject) => {
     client.getMessageContent(id).then((stream) => {
       const content = []

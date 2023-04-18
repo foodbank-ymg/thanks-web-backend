@@ -1,4 +1,4 @@
-import { WebhookEvent } from '@line/bot-sdk'
+import { Client, WebhookEvent } from '@line/bot-sdk'
 import { recipientStatus, recipientStatusType } from '../../consts/constants'
 import { Recipient } from '../../types/recipient'
 import { handleEvent } from './recipient_line'

@@ -31,8 +31,12 @@ import {
 import { askSubject } from './post'
 import { downloadImageById } from '../../lib/line/image'
 
+export var client: Client | undefined
+
 export class recipientLineHandler {
-  constructor(private client: Client) {}
+  constructor(private client_: Client) {
+    client = client_
+  }
 
   async handle(req: Request, res: Response) {
     const events: WebhookEvent[] = req.body.events
@@ -42,7 +46,7 @@ export class recipientLineHandler {
       events.map(async (event: WebhookEvent) => {
         // handleEventが必要なDB処理などを実行しユーザー返答Message配列のPromiseを返してくる。
         // this.clientは渡さなくてよくなる
-        const messages = await handleEvent(this.client, event).catch((err) => {
+        const messages = await handleEvent(event).catch((err) => {
           if (err instanceof Error) {
             console.error(err)
             // LINEでエラーの旨を伝えたいので一旦コメントアウト
@@ -58,7 +62,7 @@ export class recipientLineHandler {
 
         //eventの種類によってはreplyを行わない。
         if (event.type === 'message' || event.type === 'follow') {
-          if (messages) return this.client.replyMessage(event.replyToken, messages)
+          if (messages) return client.replyMessage(event.replyToken, messages)
         } else {
           return Promise.resolve()
         }
@@ -73,10 +77,7 @@ export class recipientLineHandler {
   }
 }
 
-export const handleEvent = async (
-  client: Client,
-  event: WebhookEvent,
-): Promise<Message[] | void> => {
+export const handleEvent = async (event: WebhookEvent): Promise<Message[] | void> => {
   let recipient = await getRecipientByLineId(event.source.userId)
   if (recipient === undefined) {
     recipient = await createRecipient(event.source.userId)
@@ -103,16 +104,12 @@ export const handleEvent = async (
       return [tellWelcomeBack(recipient.name)]
     }
   } else if (event.type === 'message') {
-    const messages = await react(client, event, recipient)
+    const messages = await react(event, recipient)
     return messages
   }
 }
 
-const react = async (
-  client: Client,
-  event: MessageEvent,
-  recipient: Recipient,
-): Promise<Message[]> => {
+const react = async (event: MessageEvent, recipient: Recipient): Promise<Message[]> => {
   if (event.message.type === 'text') {
     switch (recipient.status) {
       case recipientStatus.IDLE:
@@ -168,7 +165,7 @@ const react = async (
     switch (recipient.status) {
       case recipientStatus.INPUT_POST:
         let post = await getWorkingPostByRecipientId(recipient.id)
-        let image = await downloadImageById(client, event.message.id)
+        let image = await downloadImageById(event.message.id)
         return reactPostImage(image, post)
     }
   } else {
