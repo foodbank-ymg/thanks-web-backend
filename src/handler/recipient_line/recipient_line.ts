@@ -22,14 +22,9 @@ import {
   askRecipientIdAgain,
 } from './setup'
 import { reactPostImage, reactPostText } from './post_line'
-import {
-  createPost,
-  getPostById,
-  getWorkingPostByRecipientId,
-  updatePost,
-} from '../../lib/firestore/post'
+import { createPost, getWorkingPostByRecipientId, updatePost } from '../../lib/firestore/post'
 import { askSubject } from './post'
-import { downloadImageById } from '../../lib/line/image'
+import { Post } from '../../types/post'
 
 export var client: Client | undefined
 
@@ -46,7 +41,7 @@ export class recipientLineHandler {
       events.map(async (event: WebhookEvent) => {
         // handleEventが必要なDB処理などを実行しユーザー返答Message配列のPromiseを返してくる。
         // this.clientは渡さなくてよくなる
-        const messages = await handleEvent(event).catch((err) => {
+        const messages = await handleEvent(client, event).catch((err) => {
           if (err instanceof Error) {
             console.error(err)
             // LINEでエラーの旨を伝えたいので一旦コメントアウト
@@ -77,10 +72,20 @@ export class recipientLineHandler {
   }
 }
 
-export const handleEvent = async (event: WebhookEvent): Promise<Message[] | void> => {
+export const handleEvent = async (
+  client: Client,
+  event: WebhookEvent,
+): Promise<Message[] | void> => {
   let recipient = await getRecipientByLineId(event.source.userId)
   if (recipient === undefined) {
     recipient = await createRecipient(event.source.userId)
+  }
+  let post = undefined
+  if (recipient.status === recipientStatus.INPUT_POST) {
+    post = await getWorkingPostByRecipientId(recipient.id)
+    if (post === undefined) {
+      //TODO return data inconsistent error
+    }
   }
 
   //const action = react(event, manager)
@@ -104,22 +109,26 @@ export const handleEvent = async (event: WebhookEvent): Promise<Message[] | void
       return [tellWelcomeBack(recipient.name)]
     }
   } else if (event.type === 'message') {
-    const messages = await react(event, recipient)
+    const messages = await react(client, event, recipient, post)
     return messages
   }
 }
 
-const react = async (event: MessageEvent, recipient: Recipient): Promise<Message[]> => {
+const react = async (
+  client: Client,
+  event: MessageEvent,
+  recipient: Recipient,
+  post: Post,
+): Promise<Message[]> => {
   if (event.message.type === 'text') {
     switch (recipient.status) {
       case recipientStatus.IDLE:
         switch (event.message.text) {
           case keyword.POST:
             recipient.status = recipientStatus.INPUT_POST
-            let post = await getPostById(event.source.userId)
+            post = await getWorkingPostByRecipientId(event.source.userId)
             if (post === undefined) {
               post = await createPost(recipient)
-              post.status = postStatus.INPUT_SUBJECT
               await updatePost(post)
             }
             await updateRecipient(recipient)
@@ -158,14 +167,12 @@ const react = async (event: MessageEvent, recipient: Recipient): Promise<Message
           return [completeRegister(recipient.name)]
         }
       case recipientStatus.INPUT_POST:
-        let post = await getWorkingPostByRecipientId(recipient.id)
         return reactPostText(event.message.text, recipient, post)
     }
   } else if (event.message.type === 'image') {
     switch (recipient.status) {
       case recipientStatus.INPUT_POST:
-        let post = await getWorkingPostByRecipientId(recipient.id)
-        let image = await downloadImageById(event.message.id)
+        let image = await downloadImageById(client, event.message.id)
         return reactPostImage(image, post)
     }
   } else {
@@ -176,4 +183,20 @@ const react = async (event: MessageEvent, recipient: Recipient): Promise<Message
   }
 
   return [TextTemplate('すみません。この操作はできません。')]
+}
+
+const downloadImageById = async (client: Client, id: string): Promise<Buffer> => {
+  return new Promise((resolve, reject) => {
+    client.getMessageContent(id).then((stream) => {
+      const content = []
+      stream
+        .on('data', (chunk) => {
+          content.push(Buffer.from(chunk))
+        })
+        .on('error', reject)
+        .on('end', () => {
+          resolve(Buffer.concat(content))
+        })
+    })
+  })
 }

@@ -45,7 +45,7 @@ test(`line recipient_line/post message`, async () => {
     template: {
       type: `confirm`,
       actions: [
-        { type: `message`, label: keyword.CONFIRM, text: keyword.CONFIRM },
+        { type: `message`, label: keyword.DECIDE, text: keyword.DECIDE },
         { type: `message`, label: keyword.DISCARD, text: keyword.DISCARD },
       ],
       text: `全ての記入が完了しました。\n投稿内容に間違いがないか、最後にもう一度ご確認ください。`,

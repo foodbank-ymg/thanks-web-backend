@@ -40,7 +40,7 @@ export const confirmPost = () => {
   return ConfirmTemplate(
     `全ての記入が完了しました。\n投稿内容に間違いがないか、最後にもう一度ご確認ください。`,
     `投稿確認`,
-    [keyword.CONFIRM, keyword.DISCARD],
+    [keyword.DECIDE, keyword.DISCARD],
   )
 }
 

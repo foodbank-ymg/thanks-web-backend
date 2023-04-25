@@ -18,7 +18,7 @@ import {
 } from './post'
 import { keyword } from '../../consts/keyword'
 import { phrase } from '../../consts/phrase'
-import { uploadResizedImage } from '../../lib/storage/post'
+import { deletePostData, uploadResizedImage } from '../../lib/storage/post'
 import { updateRecipient } from '../../lib/firestore/recipient'
 
 const IMAGE_MAX = 3
@@ -76,19 +76,21 @@ export const reactPostText = async (
       }
     case postStatus.CONFIRM_SUBMIT: //TODO STILL CREATING
       switch (text) {
-        case keyword.CONFIRM: //TODO ADD REVIEW FLOW
+        case keyword.DECIDE: //TODO ADD REVIEW FLOW
           recipient.status = recipientStatus.IDLE
           await updateRecipient(recipient)
           post.status = postStatus.WAITING_REVIEW
+          post.isRecipientWorking = false
           await updatePost(post)
           return [completePost()]
         case keyword.DISCARD:
           recipient.status = recipientStatus.IDLE
           await updateRecipient(recipient)
+          await deletePostData(post)
           await deletePost(post)
           return [discardPost()]
         default:
-          return [TextTemplate(phrase.aOrb(keyword.CONFIRM, keyword.DISCARD))]
+          return [TextTemplate(phrase.aOrb(keyword.DECIDE, keyword.DISCARD))]
       }
   }
 }

@@ -6,6 +6,7 @@ import { Recipient } from '../../types/recipient'
 import { Post } from '../../types/post'
 import { bucket } from '../storage/storage'
 import { deletePostData } from '../storage/post'
+import moment from 'moment'
 
 export const getWorkingPostByRecipientId = async (id: string) => {
   let post = undefined
@@ -13,19 +14,9 @@ export const getWorkingPostByRecipientId = async (id: string) => {
     await db
       .collection('posts')
       .where('recipientId', '==', id)
-      .where('status', '!=', postStatus.WAITING_REVIEW)
+      .where('isRecipientWorking', '==', true)
       .withConverter<Post>(postConverter)
       .get()
-  ).forEach((doc) => {
-    post = doc.data()
-  })
-  return post as Post | undefined
-}
-
-export const getPostById = async (id: string) => {
-  let post = undefined
-  ;(
-    await db.collection('posts').where('id', '==', id).withConverter<Post>(postConverter).get()
   ).forEach((doc) => {
     post = doc.data()
   })
@@ -43,6 +34,7 @@ const postConverter = {
       body: post.body,
       images: post.images,
       feedback: post.feedback,
+      isRecipientWorking: post.isRecipientWorking,
       createdAt: post.createdAt,
       publishedAt: post.publishedAt,
     }
@@ -58,23 +50,24 @@ const postConverter = {
       body: data.body,
       images: data.images,
       feedback: data.feedback,
+      isRecipientWorking: data.isRecipientWorking,
       createdAt: data.createdAt.toDate(),
       publishedAt: data.publishedAt ? data.publishedAt.toDate() : null,
     }
   },
 }
 
-//* should bind!!!!
 export const createPost = async (recipient: Recipient) => {
   const newPost: Post = {
-    id: `r-${makeId(4)}`,
+    id: `${recipient.recipientGroupId}-${moment().format('YYmmdd-HHMMSS')}`,
     recipientGroupId: recipient.recipientGroupId,
     recipientId: recipient.id,
-    status: postStatus.NONE,
+    status: postStatus.INPUT_SUBJECT,
     subject: '',
     body: '',
     images: [],
     feedback: '',
+    isRecipientWorking: true,
     createdAt: new Date(),
     publishedAt: null,
   }
@@ -87,7 +80,6 @@ export const updatePost = async (post: Post) => {
 }
 
 export const deletePost = async (post: Post) => {
-  deletePostData(post)
   await db.collection('posts').doc(post.id).delete()
 }
 

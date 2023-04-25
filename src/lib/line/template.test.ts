@@ -27,7 +27,7 @@ describe(`line line/template `, () => {
     it(':Custom option', () => {
       expect(
         ConfirmTemplate('確認ダイアログテスト任意選択肢', '確認テスト', [
-          keyword.CONFIRM,
+          keyword.DECIDE,
           keyword.DISCARD,
         ]),
       ).toMatchObject({
@@ -36,7 +36,7 @@ describe(`line line/template `, () => {
         template: {
           type: `confirm`,
           actions: [
-            { type: `message`, label: keyword.CONFIRM, text: keyword.CONFIRM },
+            { type: `message`, label: keyword.DECIDE, text: keyword.DECIDE },
             { type: `message`, label: keyword.DISCARD, text: keyword.DISCARD },
           ],
           text: `確認ダイアログテスト任意選択肢`,

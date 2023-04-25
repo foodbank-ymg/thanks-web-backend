@@ -9,6 +9,7 @@ export type Post = {
   body: string
   images: string[]
   feedback: string
+  isRecipientWorking: boolean
   createdAt: Date
   publishedAt: Date
 }

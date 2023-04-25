@@ -31,6 +31,7 @@ const getPost = (status: postStatusType): Post => {
     body: '',
     images: [],
     feedback: '',
+    isRecipientWorking: true,
     publishedAt: null,
     createdAt: new Date('December 15, 1990 01:23:00'),
   }
@@ -100,7 +101,7 @@ describe('recipient_line/post_line 記事投稿', () => {
   describe(':投稿確認', () => {
     it(':決定', async () => {
       const post = getPost(postStatus.CONFIRM_SUBMIT)
-      expect(await reactPostText(keyword.CONFIRM, recipient, post)).toMatchObject([completePost()])
+      expect(await reactPostText(keyword.DECIDE, recipient, post)).toMatchObject([completePost()])
     })
     it(':破棄', async () => {
       const post = getPost(postStatus.CONFIRM_SUBMIT)
@@ -109,7 +110,7 @@ describe('recipient_line/post_line 記事投稿', () => {
     it(':その他', async () => {
       const post = getPost(postStatus.CONFIRM_SUBMIT)
       expect(await reactPostText('hoge', recipient, post)).toMatchObject([
-        TextTemplate(phrase.aOrb(keyword.CONFIRM, keyword.DISCARD)),
+        TextTemplate(phrase.aOrb(keyword.DECIDE, keyword.DISCARD)),
       ])
     })
   })

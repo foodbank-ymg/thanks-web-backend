@@ -19,7 +19,6 @@ export const recipientStatus = {
 export type recipientStatusType = (typeof recipientStatus)[keyof typeof recipientStatus]
 
 export const postStatus = {
-  NONE: '初期状態',
   INPUT_SUBJECT: '主題入力',
   CONFIRM_SUBJECT: '主題確認',
   INPUT_BODY: '本文入力',

@@ -6,7 +6,7 @@ import { Post } from '../../types/post'
 
 export const deletePostData = async (post: Post) => {
   await Promise.all(
-    post.images.map((image, i) => bucket.file(`posts/${post.id}/${i + 1}.png`).delete()),
+    post.images.map((_, i) => bucket.file(`posts/${post.id}/${i + 1}.png`).delete()),
   )
 }
 
