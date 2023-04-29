@@ -83,12 +83,4 @@ export const deletePost = async (post: Post) => {
   await db.collection('posts').doc(post.id).delete()
 }
 
-export const addImageTransaction = async (post_: Post, image: string) => {
-  await db.runTransaction(async (transaction) => {
-    const docRef = db.collection('posts').withConverter<Post>(postConverter).doc(post_.id)
-    //const docSnap = await transaction.get(docRef)
-    //const post = docSnap.data()
-    post_.images.push(image)
-    transaction.update(docRef, post_)
-  })
-}
+

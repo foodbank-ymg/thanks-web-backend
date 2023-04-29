@@ -3,7 +3,7 @@ import { Recipient } from '../../types/recipient'
 import { Post } from '../../types/post'
 import { postStatus, recipientStatus } from '../../consts/constants'
 import { TextTemplate } from '../../lib/line/template'
-import { addImageTransaction, deletePost, updatePost } from '../../lib/firestore/post'
+import { deletePost, updatePost } from '../../lib/firestore/post'
 import {
   askBody,
   askBodyAgain,
@@ -80,14 +80,13 @@ export const reactPostText = async (
           recipient.status = recipientStatus.IDLE
           await updateRecipient(recipient)
           post.status = postStatus.WAITING_REVIEW
-          post.isRecipientWorking = false
           await updatePost(post)
           return [completePost()]
         case keyword.DISCARD:
           recipient.status = recipientStatus.IDLE
           await updateRecipient(recipient)
-          await deletePostData(post)
           await deletePost(post)
+          deletePostData(post).catch((err) => console.error(err))
           return [discardPost()]
         default:
           return [TextTemplate(phrase.aOrb(keyword.DECIDE, keyword.DISCARD))]
@@ -99,7 +98,8 @@ export const reactPostImage = async (image: Buffer, post: Post): Promise<Message
   switch (post.status) {
     case postStatus.INPUT_IMAGE:
       let path = await uploadResizedImage(image, IMAGE_SIZE, post)
-      await addImageTransaction(post, path)
+      post.images.push(path)
+      await updatePost(post)
       if (post.images.length >= IMAGE_MAX) {
         post.status = postStatus.CONFIRM_SUBMIT
         await updatePost(post)

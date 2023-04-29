@@ -26,7 +26,7 @@ export const askBodyAgain = () => {
 }
 
 export const askImage = () => {
-  return TextTemplate(`次に、画像を送信してください。3枚まで追加できます。`)
+  return TextTemplate(`次に、画像を一枚づつ送信してください。3枚まで追加できます。`)
 }
 
 export const confirmImage = (len: number) => {

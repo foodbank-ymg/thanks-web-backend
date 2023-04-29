@@ -1,4 +1,4 @@
-import { Client, Message, MessageEvent, WebhookEvent } from '@line/bot-sdk'
+import { Client, Message, MessageAPIResponseBase, MessageEvent, WebhookEvent } from '@line/bot-sdk'
 import { Request, Response } from 'express'
 import { managerStatus } from '../../consts/constants'
 import { keyword } from '../../consts/keyword'
@@ -21,40 +21,36 @@ export class managerLineHandler {
   }
 
   async handle(req: Request, res: Response) {
-    const events: WebhookEvent[] = req.body.events
+    const event: WebhookEvent = req.body.events[0]
     //events[0]のみ対応するかは、まだ検討中
 
-    const results = await Promise.all(
-      events.map(async (event: WebhookEvent) => {
-        // handleEventが必要なDB処理などを実行しユーザー返答Message配列のPromiseを返してくる。
-        // this.clientは渡さなくてよくなる
-        const messages = await handleEvent(event).catch((err) => {
-          if (err instanceof Error) {
-            console.error(err)
-            // LINEでエラーの旨を伝えたいので一旦コメントアウト
-            // return res.status(500).json({
-            // status: 'error',
-            //});
-            // 異常時は定型メッセージで応答
-            return [TextTemplate(phrase.systemError)]
-          }
-        })
+    let result: MessageAPIResponseBase = undefined
 
-        // 正常時にそのメッセージを返し、結果をmapに集約する
+    // handleEventが必要なDB処理などを実行しユーザー返答Message配列のPromiseを返してくる。
+    // this.clientは渡さなくてよくなる
+    const messages = await handleEvent(event).catch((err) => {
+      if (err instanceof Error) {
+        console.error(err)
+        // LINEでエラーの旨を伝えたいので一旦コメントアウト
+        // return res.status(500).json({
+        // status: 'error',
+        //});
+        // 異常時は定型メッセージで応答
+        return [TextTemplate(phrase.systemError)]
+      }
+    })
 
-        //eventの種類によってはreplyを行わない。
-        if (event.type === 'message' || event.type === 'follow') {
-          if (messages) return this.client.replyMessage(event.replyToken, messages)
-        } else {
-          return Promise.resolve()
-        }
-      }),
-    )
+    // 正常時にそのメッセージを返し、結果をmapに集約する
+
+    //eventの種類によってはreplyを行わない。
+    if (event.type === 'message' || event.type === 'follow') {
+      if (messages) result = await this.client.replyMessage(event.replyToken, messages)
+    }
 
     // すべてが終わり、resultsをBodyとしてhttpの200を返してる
     return res.status(200).json({
       status: 'success',
-      results,
+      result,
     })
   }
 }

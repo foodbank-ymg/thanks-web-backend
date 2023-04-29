@@ -1,4 +1,11 @@
-import { Client, Message, MessageEvent, TextMessage, WebhookEvent } from '@line/bot-sdk'
+import {
+  Client,
+  Message,
+  MessageAPIResponseBase,
+  MessageEvent,
+  TextMessage,
+  WebhookEvent,
+} from '@line/bot-sdk'
 import { Request, Response } from 'express'
 import { postStatus, recipientStatus } from '../../consts/constants'
 import { keyword } from '../../consts/keyword'
@@ -34,40 +41,34 @@ export class recipientLineHandler {
   }
 
   async handle(req: Request, res: Response) {
-    const events: WebhookEvent[] = req.body.events
-    //events[0]のみ対応するかは、まだ検討中
+    const event: WebhookEvent = req.body.events[0]
 
-    const results = await Promise.all(
-      events.map(async (event: WebhookEvent) => {
-        // handleEventが必要なDB処理などを実行しユーザー返答Message配列のPromiseを返してくる。
-        // this.clientは渡さなくてよくなる
-        const messages = await handleEvent(client, event).catch((err) => {
-          if (err instanceof Error) {
-            console.error(err)
-            // LINEでエラーの旨を伝えたいので一旦コメントアウト
-            // return res.recipientStatus(500).json({
-            // recipientStatus: 'error',
-            //});
-            // 異常時は定型メッセージで応答
-            return [TextTemplate(phrase.systemError)]
-          }
-        })
+    let result: MessageAPIResponseBase = undefined
+    // handleEventが必要なDB処理などを実行しユーザー返答Message配列のPromiseを返してくる。
+    // this.clientは渡さなくてよくなる
+    const messages = await handleEvent(client, event).catch((err) => {
+      if (err instanceof Error) {
+        console.error(err)
+        // LINEでエラーの旨を伝えたいので一旦コメントアウト
+        // return res.recipientStatus(500).json({
+        // recipientStatus: 'error',
+        //});
+        // 異常時は定型メッセージで応答
+        return [TextTemplate(phrase.systemError)]
+      }
+    })
 
-        // 正常時にそのメッセージを返し、結果をmapに集約する
+    // 正常時にそのメッセージを返し、結果をmapに集約する
 
-        //eventの種類によってはreplyを行わない。
-        if (event.type === 'message' || event.type === 'follow') {
-          if (messages) return client.replyMessage(event.replyToken, messages)
-        } else {
-          return Promise.resolve()
-        }
-      }),
-    )
+    //eventの種類によってはreplyを行わない。
+    if (event.type === 'message' || event.type === 'follow') {
+      if (messages) result = await client.replyMessage(event.replyToken, messages)
+    }
 
     // すべてが終わり、resultsをBodyとしてhttpの200を返してる
     return res.status(200).json({
       status: 'success',
-      results,
+      result,
     })
   }
 }
@@ -129,7 +130,6 @@ const react = async (
             post = await getWorkingPostByRecipientId(event.source.userId)
             if (post === undefined) {
               post = await createPost(recipient)
-              await updatePost(post)
             }
             await updateRecipient(recipient)
             return [askSubject()]
