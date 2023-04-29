@@ -23,7 +23,7 @@ import { reactPostText } from './post_line'
 
 const getPost = (status: postStatusType): Post => {
   return {
-    id: 'r-0001',
+    id: 'rg-0001-230428-161200',
     recipientGroupId: 'rg-0001',
     recipientId: 'r-0001',
     status: status,
