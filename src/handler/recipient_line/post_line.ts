@@ -18,8 +18,9 @@ import {
 } from './post'
 import { keyword } from '../../consts/keyword'
 import { phrase } from '../../consts/phrase'
-import { deletePostData, uploadResizedImage } from '../../lib/storage/post'
+import { deletePostData, uploadImage } from '../../lib/storage/post'
 import { updateRecipient } from '../../lib/firestore/recipient'
+import sharp from 'sharp'
 
 const IMAGE_MAX = 3
 const IMAGE_SIZE = 680
@@ -97,7 +98,10 @@ export const reactPostText = async (
 export const reactPostImage = async (image: Buffer, post: Post): Promise<Message[]> => {
   switch (post.status) {
     case postStatus.INPUT_IMAGE:
-      let path = await uploadResizedImage(image, IMAGE_SIZE, post)
+      image = await sharp(image)
+        .resize({ width: IMAGE_SIZE, height: IMAGE_SIZE, fit: sharp.fit.inside })
+        .toBuffer()
+      let path = await uploadImage(image, post)
       post.images.push(path)
       await updatePost(post)
       if (post.images.length >= IMAGE_MAX) {

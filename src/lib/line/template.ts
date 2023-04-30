@@ -35,7 +35,6 @@ export const QuickReplyTemplate = (text: string, items_: string[]) => {
   const items = items_.map((item) => {
     return {
       type: 'action', // ③
-      imageUrl: 'https://example.com/sushi.png',
       action: {
         type: 'message',
         label: item,

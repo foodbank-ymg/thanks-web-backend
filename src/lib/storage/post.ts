@@ -10,7 +10,7 @@ export const deletePostData = async (post: Post) => {
   )
 }
 
-export const uploadResizedImage = async (image: Buffer, size: number, post: Post) => {
+export const uploadImage = async (image: Buffer, post: Post) => {
   const path = `posts/${post.id}/${post.images.length + 1}.png` //images haven't updated
   await upload(image, path)
   bucket.file(path).makePublic()

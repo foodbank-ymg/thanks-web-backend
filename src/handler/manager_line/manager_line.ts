@@ -21,6 +21,9 @@ export class managerLineHandler {
   }
 
   async handle(req: Request, res: Response) {
+    if (!req.body.events || req.body.events.length === 0) {
+      return res.status(200)
+    }
     const event: WebhookEvent = req.body.events[0]
     //events[0]のみ対応するかは、まだ検討中
 

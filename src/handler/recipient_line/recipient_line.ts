@@ -41,6 +41,10 @@ export class recipientLineHandler {
   }
 
   async handle(req: Request, res: Response) {
+    if (!req.body.events || req.body.events.length === 0) {
+      return res.status(200)
+    }
+
     const event: WebhookEvent = req.body.events[0]
 
     let result: MessageAPIResponseBase = undefined
