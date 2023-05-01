@@ -4,7 +4,6 @@ import { loadConfig } from '../config/config'
 import { managerLineHandler } from './manager_line/manager_line'
 import { recipientLineHandler } from './recipient_line/recipient_line'
 import { newFirestore } from '../lib/firestore/firestore'
-import { getManagerByLineId } from '../lib/firestore/manager'
 import { newStorage } from '../lib/storage/storage'
 import admin from 'firebase-admin'
 

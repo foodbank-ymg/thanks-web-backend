@@ -1,7 +1,5 @@
-import sharp from 'sharp'
+
 import { bucket, upload } from './storage'
-import date from 'date-and-time'
-import { makeId } from '../../utils/random/random'
 import { Post } from '../../types/post'
 
 export const deletePostData = async (post: Post) => {

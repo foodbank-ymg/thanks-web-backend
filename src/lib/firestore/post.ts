@@ -1,11 +1,8 @@
 import { db } from './firestore'
 import { DocumentData, QueryDocumentSnapshot } from 'firebase-admin/firestore'
-import { postStatus, recipientStatus } from '../../consts/constants'
-import { makeId } from '../../utils/random/random'
+import { postStatus } from '../../consts/constants'
 import { Recipient } from '../../types/recipient'
 import { Post } from '../../types/post'
-import { bucket } from '../storage/storage'
-import { deletePostData } from '../storage/post'
 import moment from 'moment'
 
 export const getWorkingPostByRecipientId = async (id: string) => {
