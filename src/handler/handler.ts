@@ -5,6 +5,9 @@ import { managerLineHandler } from './manager_line/manager_line'
 import { recipientLineHandler } from './recipient_line/recipient_line'
 import { newFirestore } from '../lib/firestore/firestore'
 import { getManagerByLineId } from '../lib/firestore/manager'
+import { newStorage } from '../lib/storage/storage'
+import admin from 'firebase-admin'
+
 export const app = express()
 
 const config = loadConfig()
@@ -24,7 +27,9 @@ const recipientClient = new Client({
   channelAccessToken: config.recipientLineAccessToken,
   channelSecret: config.recipientLineSecret,
 })
+admin.initializeApp()
 newFirestore()
+newStorage(config.projectId)
 
 app.post('/manager-line', managerMiddleware, (req, res) =>
   new managerLineHandler(managerClient).handle(req, res),
