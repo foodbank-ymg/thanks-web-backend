@@ -1,10 +1,4 @@
-import {
-  Client,
-  Message,
-  MessageAPIResponseBase,
-  MessageEvent,
-  WebhookEvent,
-} from '@line/bot-sdk'
+import { Client, Message, MessageAPIResponseBase, MessageEvent, WebhookEvent } from '@line/bot-sdk'
 import { Request, Response } from 'express'
 import { recipientStatus } from '../../consts/constants'
 import { keyword } from '../../consts/keyword'

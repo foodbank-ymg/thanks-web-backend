@@ -1,4 +1,3 @@
-
 import { bucket, upload } from './storage'
 import { Post } from '../../types/post'
 

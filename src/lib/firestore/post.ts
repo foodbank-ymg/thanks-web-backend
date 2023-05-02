@@ -79,5 +79,3 @@ export const updatePost = async (post: Post) => {
 export const deletePost = async (post: Post) => {
   await db.collection('posts').doc(post.id).delete()
 }
-
-
