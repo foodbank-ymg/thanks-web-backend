@@ -21,6 +21,8 @@ import { phrase } from '../../consts/phrase'
 import { deletePostData, uploadImage } from '../../lib/storage/post'
 import { updateRecipient } from '../../lib/firestore/recipient'
 import sharp from 'sharp'
+import { Push } from '../../lib/line/line'
+import { getManagers } from '../../lib/firestore/manager'
 
 const IMAGE_MAX = 3
 const IMAGE_SIZE = 680
@@ -82,6 +84,11 @@ export const reactPostText = async (
           await updateRecipient(recipient)
           post.status = postStatus.WAITING_REVIEW
           await updatePost(post)
+          Push(
+            client,
+            (await getManagers()).map((m) => m.id),
+            
+          )
           return [completePost()]
         case keyword.DISCARD:
           recipient.status = recipientStatus.IDLE

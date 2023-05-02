@@ -1,3 +1,4 @@
+import { FlexBubble, FlexMessage } from '@line/bot-sdk'
 import { keyword } from '../../consts/keyword'
 import { ConfirmTemplate, QuickReplyTemplate, TextTemplate } from '../../lib/line/template'
 
@@ -54,4 +55,109 @@ export const discardPost = () => {
   return TextTemplate(
     `記事の下書きを削除しました。もう一度投稿する場合は「記事投稿」と話しかけてください。`,
   )
+}
+
+//TODO CHANGE IMAGE URL
+export const askReviewPost = () => {
+  return {
+    type: 'bubble',
+    hero: {
+      type: 'image',
+      url: 'https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_1_cafe.png',
+      size: 'full',
+      aspectRatio: '20:13',
+      aspectMode: 'cover',
+      action: {
+        type: 'uri',
+        uri: 'http://linecorp.com/',
+      },
+    },
+    body: {
+      type: 'box',
+      layout: 'vertical',
+      contents: [
+        {
+          type: 'box',
+          layout: 'horizontal',
+          contents: [
+            {
+              type: 'image',
+              url: 'https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_1_cafe.png',
+              size: 'full',
+              aspectRatio: '20:13',
+            },
+            {
+              type: 'image',
+              url: 'https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_1_cafe.png',
+              size: 'full',
+              aspectRatio: '20:13',
+            },
+          ],
+          paddingAll: 'none',
+        },
+        {
+          type: 'box',
+          layout: 'vertical',
+          contents: [
+            {
+              type: 'text',
+              text: 'タイトルを入力。複数行でも表示。',
+              size: 'xl',
+              weight: 'bold',
+              margin: 'none',
+              wrap: true,
+            },
+            {
+              type: 'text',
+              text: 'ここに本文を表示。HOGE HOGEHOGE HOGEHOGE HOGEHOGE HOGE',
+              margin: 'md',
+              wrap: true,
+            },
+          ],
+          paddingBottom: 'none',
+          paddingStart: 'xxl',
+          paddingEnd: 'xxl',
+          paddingAll: 'xxl',
+        },
+      ],
+      paddingStart: 'none',
+      paddingEnd: 'none',
+      paddingAll: 'none',
+      paddingTop: 'none',
+    },
+    footer: {
+      type: 'box',
+      layout: 'vertical',
+      spacing: 'sm',
+      contents: [
+        {
+          type: 'button',
+          style: 'link',
+          height: 'sm',
+          action: {
+            type: 'message',
+            label: '許可',
+            text: '許可',
+          },
+        },
+        {
+          type: 'button',
+          style: 'link',
+          height: 'sm',
+          action: {
+            type: 'message',
+            label: '不許可',
+            text: '不許可',
+          },
+        },
+        {
+          type: 'box',
+          layout: 'vertical',
+          contents: [],
+          margin: 'sm',
+        },
+      ],
+      flex: 0,
+    },
+  } as FlexBubble
 }

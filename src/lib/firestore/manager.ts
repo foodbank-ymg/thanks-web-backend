@@ -18,6 +18,12 @@ export const getManagerByLineId = async (lineId: string) => {
   return manager as Manager | undefined
 }
 
+export const getManagers = async () => {
+  return (await db.collection('managers').withConverter<Manager>(managerConverter).get()).docs.map(
+    (doc) => doc.data(),
+  )
+}
+
 const managerConverter = {
   toFirestore(manager: Manager): DocumentData {
     return {
