@@ -1,4 +1,3 @@
-import express from 'express'
 import { app } from './handler/handler'
 
 const port = parseInt(process.env.PORT) || 8080

@@ -1,6 +1,5 @@
 import { Bucket } from '@google-cloud/storage'
 import admin from 'firebase-admin'
-import { Config } from '../../config/config'
 
 export var db: admin.storage.Storage | undefined
 export var bucket: Bucket

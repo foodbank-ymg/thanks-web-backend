@@ -1,13 +1,6 @@
-import {
-  Client,
-  Message,
-  MessageAPIResponseBase,
-  MessageEvent,
-  TextMessage,
-  WebhookEvent,
-} from '@line/bot-sdk'
+import { Client, Message, MessageAPIResponseBase, MessageEvent, WebhookEvent } from '@line/bot-sdk'
 import { Request, Response } from 'express'
-import { postStatus, recipientStatus } from '../../consts/constants'
+import { recipientStatus } from '../../consts/constants'
 import { keyword } from '../../consts/keyword'
 import { phrase } from '../../consts/phrase'
 import { getRecipientGroupById } from '../../lib/firestore/recipientGroup'
@@ -29,7 +22,7 @@ import {
   askRecipientIdAgain,
 } from './setup'
 import { reactPostImage, reactPostText } from './post_line'
-import { createPost, getWorkingPostByRecipientId, updatePost } from '../../lib/firestore/post'
+import { createPost, getWorkingPostByRecipientId } from '../../lib/firestore/post'
 import { askSubject } from './post'
 import { Post } from '../../types/post'
 

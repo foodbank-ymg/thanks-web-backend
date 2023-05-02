@@ -1,9 +1,4 @@
-import {
-  postStatus,
-  postStatusType,
-  recipientStatus,
-  recipientStatusType,
-} from '../../consts/constants'
+import { postStatus, postStatusType, recipientStatus } from '../../consts/constants'
 import { keyword } from '../../consts/keyword'
 import { phrase } from '../../consts/phrase'
 import { TextTemplate } from '../../lib/line/template'
