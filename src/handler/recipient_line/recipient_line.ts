@@ -26,11 +26,10 @@ import { createPost, getWorkingPostByRecipientId } from '../../lib/firestore/pos
 import { askSubject } from './post'
 import { Post } from '../../types/post'
 
-export var client: Client | undefined
-
 export class recipientLineHandler {
+  private client: Client
   constructor(private client_: Client) {
-    client = client_
+    this.client = client_
   }
 
   async handle(req: Request, res: Response) {
@@ -43,7 +42,7 @@ export class recipientLineHandler {
     let result: MessageAPIResponseBase = undefined
     // handleEventが必要なDB処理などを実行しユーザー返答Message配列のPromiseを返してくる。
     // this.clientは渡さなくてよくなる
-    const messages = await handleEvent(client, event).catch((err) => {
+    const messages = await handleEvent(this.client, event).catch((err) => {
       if (err instanceof Error) {
         console.error(err)
         // LINEでエラーの旨を伝えたいので一旦コメントアウト
@@ -59,7 +58,7 @@ export class recipientLineHandler {
 
     //eventの種類によってはreplyを行わない。
     if (event.type === 'message' || event.type === 'follow') {
-      if (messages) result = await client.replyMessage(event.replyToken, messages)
+      if (messages) result = await this.client.replyMessage(event.replyToken, messages)
     }
 
     // すべてが終わり、resultsをBodyとしてhttpの200を返してる
@@ -164,7 +163,7 @@ const react = async (
           return [completeRegister(recipient.name)]
         }
       case recipientStatus.INPUT_POST:
-        return reactPostText(event.message.text, recipient, post)
+        return reactPostText(client, event.message.text, recipient, post)
     }
   } else if (event.message.type === 'image') {
     switch (recipient.status) {

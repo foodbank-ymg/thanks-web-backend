@@ -1,4 +1,4 @@
-import { Message } from '@line/bot-sdk'
+import { Client, Message } from '@line/bot-sdk'
 import { Recipient } from '../../types/recipient'
 import { Post } from '../../types/post'
 import { postStatus, recipientStatus } from '../../consts/constants'
@@ -25,12 +25,12 @@ import { updateRecipient } from '../../lib/firestore/recipient'
 import sharp from 'sharp'
 import { Push } from '../../lib/line/line'
 import { getManagers } from '../../lib/firestore/manager'
-import { client } from './recipient_line'
 
 const IMAGE_MAX = 3
 const IMAGE_SIZE = 680
 
 export const reactPostText = async (
+  client: Client,
   text: string,
   recipient: Recipient,
   post: Post,
@@ -78,10 +78,7 @@ export const reactPostText = async (
       if (text === keyword.FINISH_IMAGE) {
         post.status = postStatus.CONFIRM_SUBMIT
         await updatePost(post)
-        return [
-          confirmPost(),
-          PostPreview(post.subject, post.body, post.images, [keyword.DECIDE, keyword.DISCARD]),
-        ]
+        return [PostPreview(post.subject, post.body, post.images), confirmPost()]
       }
     case postStatus.CONFIRM_SUBMIT: //TODO STILL CREATING
       switch (text) {
@@ -94,8 +91,8 @@ export const reactPostText = async (
             client,
             (await getManagers()).map((m) => m.lineId),
             [
-              AskPostReview(recipient.name),
-              PostPreview(post.subject, post.body, post.images, [keyword.DECIDE, keyword.DISCARD]),
+              PostPreview(post.subject, post.body, post.images),
+              AskPostReview(recipient.name, post.id),
             ],
           )
           return [completePost()]
@@ -123,10 +120,7 @@ export const reactPostImage = async (image: Buffer, post: Post): Promise<Message
       if (post.images.length >= IMAGE_MAX) {
         post.status = postStatus.CONFIRM_SUBMIT
         await updatePost(post)
-        return [
-          confirmPost(),
-          PostPreview(post.subject, post.body, post.images, [keyword.DECIDE, keyword.DISCARD]),
-        ]
+        return [PostPreview(post.subject, post.body, post.images), confirmPost()]
       } else {
         return [confirmImage(post.images.length)]
       }

@@ -1,7 +1,14 @@
 import { FlexMessage } from '@line/bot-sdk'
 import { keyword } from '../../consts/keyword'
-import { ConfirmTemplate, QuickReplyTemplate, TextTemplate } from '../../lib/line/template'
+import {
+  ConfirmTemplate,
+  ConfirmTemplatePostback,
+  NewPostbackAction,
+  QuickReplyTemplate,
+  TextTemplate,
+} from '../../lib/line/template'
 import { GetUrl } from '../../lib/storage/storage'
+import { PostbackData } from '../../types/postback'
 
 export const askSubject = () => {
   return TextTemplate(`まず、主題を入力してください。`)
@@ -39,8 +46,10 @@ export const confirmImage = (len: number) => {
 }
 
 export const confirmPost = () => {
-  return TextTemplate(
+  return ConfirmTemplate(
     `全ての記入が完了しました。\n投稿内容に間違いがないか、最後にもう一度ご確認ください。`,
+    `投稿確認`,
+    [keyword.DECIDE, keyword.DISCARD],
   )
 }
 
@@ -56,11 +65,25 @@ export const discardPost = () => {
   )
 }
 
-export const AskPostReview = (name: string) => {
-  return TextTemplate(`「${name}」さんが新しい記事を投稿しました。ご確認ください。`)
+//TODO USE POST BACK
+export const AskPostReview = (name: string, postId: string) => {
+  return ConfirmTemplatePostback(
+    `「${name}」さんが新しい記事を投稿しました。ご確認ください。`,
+    `投稿承認`,
+    [
+      NewPostbackAction(
+        keyword.APPROVE,
+        JSON.stringify({ action: keyword.APPROVE, target: postId } as PostbackData),
+      ),
+      NewPostbackAction(
+        keyword.REJECT,
+        JSON.stringify({ action: keyword.REJECT, target: postId } as PostbackData),
+      ),
+    ],
+  )
 }
 
-export const PostPreview = (subject: string, body: string, images: string[], options: string[]) => {
+export const PostPreview = (subject: string, body: string, images: string[]) => {
   let hero = undefined
   if (images.length > 0) {
     hero = {
@@ -82,18 +105,6 @@ export const PostPreview = (subject: string, body: string, images: string[], opt
       }
     })
   }
-  let optionObjects = options.map((option) => {
-    return {
-      type: 'button',
-      style: 'link',
-      height: 'sm',
-      action: {
-        type: 'message',
-        label: option,
-        text: option,
-      },
-    }
-  })
 
   return {
     type: 'flex',
@@ -135,13 +146,6 @@ export const PostPreview = (subject: string, body: string, images: string[], opt
           },
         ],
         paddingAll: 'none',
-      },
-      footer: {
-        type: 'box',
-        layout: 'vertical',
-        spacing: 'sm',
-        contents: optionObjects,
-        flex: 0,
       },
     },
   } as FlexMessage
