@@ -1,6 +1,7 @@
-import { FlexBubble, FlexMessage } from '@line/bot-sdk'
+import { FlexMessage } from '@line/bot-sdk'
 import { keyword } from '../../consts/keyword'
 import { ConfirmTemplate, QuickReplyTemplate, TextTemplate } from '../../lib/line/template'
+import { GetUrl } from '../../lib/storage/storage'
 
 export const askSubject = () => {
   return TextTemplate(`まず、主題を入力してください。`)
@@ -38,10 +39,8 @@ export const confirmImage = (len: number) => {
 }
 
 export const confirmPost = () => {
-  return ConfirmTemplate(
+  return TextTemplate(
     `全ての記入が完了しました。\n投稿内容に間違いがないか、最後にもう一度ご確認ください。`,
-    `投稿確認`,
-    [keyword.DECIDE, keyword.DISCARD],
   )
 }
 
@@ -57,107 +56,93 @@ export const discardPost = () => {
   )
 }
 
-//TODO CHANGE IMAGE URL
-export const askReviewPost = () => {
-  return {
-    type: 'bubble',
-    hero: {
+export const AskPostReview = (name: string) => {
+  return TextTemplate(`「${name}」さんが新しい記事を投稿しました。ご確認ください。`)
+}
+
+export const PostPreview = (subject: string, body: string, images: string[], options: string[]) => {
+  let hero = undefined
+  if (images.length > 0) {
+    hero = {
       type: 'image',
-      url: 'https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_1_cafe.png',
+      url: GetUrl(images[0]),
       size: 'full',
       aspectRatio: '20:13',
       aspectMode: 'cover',
+    }
+  }
+  let imageObjects = []
+  if (images.length > 1) {
+    imageObjects = images.slice(1).map((image) => {
+      return {
+        type: 'image',
+        url: GetUrl(image),
+        size: 'full',
+        aspectRatio: '20:13',
+      }
+    })
+  }
+  let optionObjects = options.map((option) => {
+    return {
+      type: 'button',
+      style: 'link',
+      height: 'sm',
       action: {
-        type: 'uri',
-        uri: 'http://linecorp.com/',
+        type: 'message',
+        label: option,
+        text: option,
+      },
+    }
+  })
+
+  return {
+    type: 'flex',
+    altText: 'This is a Flex Message',
+    contents: {
+      type: 'bubble',
+      hero: hero,
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'box',
+            layout: 'horizontal',
+            contents: imageObjects,
+            paddingAll: 'none',
+          },
+          {
+            type: 'box',
+            layout: 'vertical',
+            contents: [
+              {
+                type: 'text',
+                text: subject,
+                size: 'xl',
+                weight: 'bold',
+                margin: 'none',
+                wrap: true,
+              },
+              {
+                type: 'text',
+                text: body,
+                margin: 'md',
+                wrap: true,
+              },
+            ],
+            paddingBottom: 'none',
+            paddingAll: 'xxl',
+          },
+        ],
+        paddingAll: 'none',
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        spacing: 'sm',
+        contents: optionObjects,
+        flex: 0,
       },
     },
-    body: {
-      type: 'box',
-      layout: 'vertical',
-      contents: [
-        {
-          type: 'box',
-          layout: 'horizontal',
-          contents: [
-            {
-              type: 'image',
-              url: 'https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_1_cafe.png',
-              size: 'full',
-              aspectRatio: '20:13',
-            },
-            {
-              type: 'image',
-              url: 'https://scdn.line-apps.com/n/channel_devcenter/img/fx/01_1_cafe.png',
-              size: 'full',
-              aspectRatio: '20:13',
-            },
-          ],
-          paddingAll: 'none',
-        },
-        {
-          type: 'box',
-          layout: 'vertical',
-          contents: [
-            {
-              type: 'text',
-              text: 'タイトルを入力。複数行でも表示。',
-              size: 'xl',
-              weight: 'bold',
-              margin: 'none',
-              wrap: true,
-            },
-            {
-              type: 'text',
-              text: 'ここに本文を表示。HOGE HOGEHOGE HOGEHOGE HOGEHOGE HOGE',
-              margin: 'md',
-              wrap: true,
-            },
-          ],
-          paddingBottom: 'none',
-          paddingStart: 'xxl',
-          paddingEnd: 'xxl',
-          paddingAll: 'xxl',
-        },
-      ],
-      paddingStart: 'none',
-      paddingEnd: 'none',
-      paddingAll: 'none',
-      paddingTop: 'none',
-    },
-    footer: {
-      type: 'box',
-      layout: 'vertical',
-      spacing: 'sm',
-      contents: [
-        {
-          type: 'button',
-          style: 'link',
-          height: 'sm',
-          action: {
-            type: 'message',
-            label: '許可',
-            text: '許可',
-          },
-        },
-        {
-          type: 'button',
-          style: 'link',
-          height: 'sm',
-          action: {
-            type: 'message',
-            label: '不許可',
-            text: '不許可',
-          },
-        },
-        {
-          type: 'box',
-          layout: 'vertical',
-          contents: [],
-          margin: 'sm',
-        },
-      ],
-      flex: 0,
-    },
-  } as FlexBubble
+  } as FlexMessage
 }

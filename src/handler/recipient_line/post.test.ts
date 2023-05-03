@@ -1,9 +1,11 @@
+import { loadConfig } from '../../config/config'
 import { keyword } from '../../consts/keyword'
 import { ConfirmTemplate, TextTemplate } from '../../lib/line/template'
 import {
   askBody,
   askBodyAgain,
   askImage,
+  askReviewPost,
   askSubject,
   askSubjectAgain,
   completePost,
@@ -53,4 +55,98 @@ test(`line recipient_line/post message`, async () => {
       `記事の下書きを削除しました。もう一度投稿する場合は「記事投稿」と話しかけてください。`,
     ),
   )
+  let conf = loadConfig()
+
+  expect(
+    askReviewPost(`タイトル`, `本文`, [`images/2301/25ot.png`, `images/2211/24py.png`]),
+  ).toMatchObject({
+    type: 'flex',
+    altText: 'This is a Flex Message',
+    contents: {
+      type: 'bubble',
+      hero: {
+        type: 'image',
+        url: `https://storage.googleapis.com/${conf.projectId}.appspot.com/images%2F2301%2F25ot.png`,
+        size: 'full',
+        aspectRatio: '20:13',
+        aspectMode: 'cover',
+      },
+      body: {
+        type: 'box',
+        layout: 'vertical',
+        contents: [
+          {
+            type: 'box',
+            layout: 'horizontal',
+            contents: [
+              {
+                type: 'image',
+                url: `https://storage.googleapis.com/${conf.projectId}.appspot.com/images%2F2211%2F24py.png`,
+                size: 'full',
+                aspectRatio: '20:13',
+              },
+            ],
+            paddingAll: 'none',
+          },
+          {
+            type: 'box',
+            layout: 'vertical',
+            contents: [
+              {
+                type: 'text',
+                text: 'タイトル',
+                size: 'xl',
+                weight: 'bold',
+                margin: 'none',
+                wrap: true,
+              },
+              {
+                type: 'text',
+                text: '本文',
+                margin: 'md',
+                wrap: true,
+              },
+            ],
+            paddingBottom: 'none',
+            paddingAll: 'xxl',
+          },
+        ],
+        paddingAll: 'none',
+      },
+      footer: {
+        type: 'box',
+        layout: 'vertical',
+        spacing: 'sm',
+        contents: [
+          {
+            type: 'button',
+            style: 'link',
+            height: 'sm',
+            action: {
+              type: 'message',
+              label: '許可',
+              text: '許可',
+            },
+          },
+          {
+            type: 'button',
+            style: 'link',
+            height: 'sm',
+            action: {
+              type: 'message',
+              label: '不許可',
+              text: '不許可',
+            },
+          },
+          {
+            type: 'box',
+            layout: 'vertical',
+            contents: [],
+            margin: 'sm',
+          },
+        ],
+        flex: 0,
+      },
+    },
+  })
 })

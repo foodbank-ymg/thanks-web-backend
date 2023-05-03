@@ -5,6 +5,8 @@ import { postStatus, recipientStatus } from '../../consts/constants'
 import { TextTemplate } from '../../lib/line/template'
 import { deletePost, updatePost } from '../../lib/firestore/post'
 import {
+  AskPostReview,
+  PostPreview,
   askBody,
   askBodyAgain,
   askImage,
@@ -23,6 +25,7 @@ import { updateRecipient } from '../../lib/firestore/recipient'
 import sharp from 'sharp'
 import { Push } from '../../lib/line/line'
 import { getManagers } from '../../lib/firestore/manager'
+import { client } from './recipient_line'
 
 const IMAGE_MAX = 3
 const IMAGE_SIZE = 680
@@ -75,7 +78,10 @@ export const reactPostText = async (
       if (text === keyword.FINISH_IMAGE) {
         post.status = postStatus.CONFIRM_SUBMIT
         await updatePost(post)
-        return [confirmPost()]
+        return [
+          confirmPost(),
+          PostPreview(post.subject, post.body, post.images, [keyword.DECIDE, keyword.DISCARD]),
+        ]
       }
     case postStatus.CONFIRM_SUBMIT: //TODO STILL CREATING
       switch (text) {
@@ -86,8 +92,11 @@ export const reactPostText = async (
           await updatePost(post)
           Push(
             client,
-            (await getManagers()).map((m) => m.id),
-            
+            (await getManagers()).map((m) => m.lineId),
+            [
+              AskPostReview(recipient.name),
+              PostPreview(post.subject, post.body, post.images, [keyword.DECIDE, keyword.DISCARD]),
+            ],
           )
           return [completePost()]
         case keyword.DISCARD:
@@ -114,7 +123,10 @@ export const reactPostImage = async (image: Buffer, post: Post): Promise<Message
       if (post.images.length >= IMAGE_MAX) {
         post.status = postStatus.CONFIRM_SUBMIT
         await updatePost(post)
-        return [confirmPost()]
+        return [
+          confirmPost(),
+          PostPreview(post.subject, post.body, post.images, [keyword.DECIDE, keyword.DISCARD]),
+        ]
       } else {
         return [confirmImage(post.images.length)]
       }

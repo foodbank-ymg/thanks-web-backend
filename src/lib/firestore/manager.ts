@@ -19,9 +19,13 @@ export const getManagerByLineId = async (lineId: string) => {
 }
 
 export const getManagers = async () => {
-  return (await db.collection('managers').withConverter<Manager>(managerConverter).get()).docs.map(
-    (doc) => doc.data(),
-  )
+  return (
+    await db
+      .collection('managers')
+      .where('enable', '==', true)
+      .withConverter<Manager>(managerConverter)
+      .get()
+  ).docs.map((doc) => doc.data())
 }
 
 const managerConverter = {

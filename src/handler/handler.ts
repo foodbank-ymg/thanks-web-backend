@@ -28,7 +28,7 @@ const recipientClient = new Client({
 })
 admin.initializeApp()
 newFirestore()
-newStorage(config.projectId)
+newStorage()
 
 app.post('/manager-line', managerMiddleware, (req, res) =>
   new managerLineHandler(managerClient).handle(req, res),

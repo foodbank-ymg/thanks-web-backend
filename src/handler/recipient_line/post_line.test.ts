@@ -1,6 +1,7 @@
 import { postStatus, postStatusType, recipientStatus } from '../../consts/constants'
 import { keyword } from '../../consts/keyword'
 import { phrase } from '../../consts/phrase'
+import { newFirestore } from '../../lib/firestore/firestore'
 import { TextTemplate } from '../../lib/line/template'
 import { Post } from '../../types/post'
 import { Recipient } from '../../types/recipient'
@@ -15,6 +16,7 @@ import {
   discardPost,
 } from './post'
 import { reactPostText } from './post_line'
+import admin from 'firebase-admin'
 
 const getPost = (status: postStatusType): Post => {
   return {
@@ -54,6 +56,8 @@ jest.mock('../../lib/firestore/recipient', () => ({
 }))
 
 describe('recipient_line/post_line 記事投稿', () => {
+  admin.initializeApp()
+  newFirestore()
   const recipient = getRecipient()
   it(':主題入力', async () => {
     const post = getPost(postStatus.INPUT_SUBJECT)
