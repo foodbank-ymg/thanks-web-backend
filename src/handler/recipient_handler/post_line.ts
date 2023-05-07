@@ -25,6 +25,7 @@ import { updateRecipient } from '../../lib/firestore/recipient'
 import sharp from 'sharp'
 import { Push } from '../../lib/line/line'
 import { getManagers } from '../../lib/firestore/manager'
+import { managerClient } from './recipient_line'
 
 const IMAGE_MAX = 3
 const IMAGE_SIZE = 680
@@ -88,7 +89,7 @@ export const reactPostText = async (
           post.status = postStatus.WAITING_REVIEW
           await updatePost(post)
           Push(
-            client,
+            managerClient,
             (await getManagers()).map((m) => m.lineId),
             [
               PostPreview(post.subject, post.body, post.images),

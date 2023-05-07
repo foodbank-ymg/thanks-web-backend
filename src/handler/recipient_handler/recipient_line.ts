@@ -26,10 +26,12 @@ import { createPost, getWorkingPostByRecipientId } from '../../lib/firestore/pos
 import { askSubject } from './post'
 import { Post } from '../../types/post'
 
+export var managerClient: Client
 export class recipientLineHandler {
   private client: Client
-  constructor(private client_: Client) {
+  constructor(private client_: Client, private managerClient_: Client) {
     this.client = client_
+    managerClient = managerClient_
   }
 
   async handle(req: Request, res: Response) {

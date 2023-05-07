@@ -141,7 +141,6 @@ export const PostPreview = (subject: string, body: string, images: string[]) => 
                 wrap: true,
               },
             ],
-            paddingBottom: 'none',
             paddingAll: 'xxl',
           },
         ],
