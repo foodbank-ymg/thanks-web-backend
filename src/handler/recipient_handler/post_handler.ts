@@ -25,13 +25,12 @@ import { updateRecipient } from '../../lib/firestore/recipient'
 import sharp from 'sharp'
 import { Push } from '../../lib/line/line'
 import { getManagers } from '../../lib/firestore/manager'
-import { managerClient } from './recipient_line'
 
 const IMAGE_MAX = 3
 const IMAGE_SIZE = 680
 
 export const reactPostText = async (
-  client: Client,
+  managerClient: Client,
   text: string,
   recipient: Recipient,
   post: Post,
@@ -81,6 +80,7 @@ export const reactPostText = async (
         await updatePost(post)
         return [PostPreview(post.subject, post.body, post.images), confirmPost()]
       }
+      break
     case postStatus.CONFIRM_SUBMIT: //TODO STILL CREATING
       switch (text) {
         case keyword.DECIDE: //TODO ADD REVIEW FLOW

@@ -65,7 +65,6 @@ export const discardPost = () => {
   )
 }
 
-//TODO USE POST BACK
 export const AskPostReview = (name: string, postId: string) => {
   return ConfirmTemplatePostback(
     `「${name}」さんが新しい記事を投稿しました。ご確認ください。`,
@@ -108,7 +107,7 @@ export const PostPreview = (subject: string, body: string, images: string[]) => 
 
   return {
     type: 'flex',
-    altText: 'This is a Flex Message',
+    altText: '投稿プレビュー',
     contents: {
       type: 'bubble',
       hero: hero,

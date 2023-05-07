@@ -1,11 +1,17 @@
 import { loadConfig } from '../../config/config'
 import { keyword } from '../../consts/keyword'
-import { ConfirmTemplate, TextTemplate } from '../../lib/line/template'
+import {
+  ConfirmTemplate,
+  ConfirmTemplatePostback,
+  NewPostbackAction,
+  TextTemplate,
+} from '../../lib/line/template'
+import { PostbackData } from '../../types/postback'
 import {
   askBody,
   askBodyAgain,
   askImage,
-  askReviewPost,
+  AskPostReview,
   askSubject,
   askSubjectAgain,
   completePost,
@@ -14,6 +20,7 @@ import {
   confirmPost,
   confirmSubject,
   discardPost,
+  PostPreview,
 } from './post'
 
 test(`line recipient_line/post message`, async () => {
@@ -57,11 +64,34 @@ test(`line recipient_line/post message`, async () => {
   )
   let conf = loadConfig()
 
+  expect(AskPostReview('hoge', 'rg-0001-230428-161200')).toMatchObject(
+    ConfirmTemplatePostback(
+      `「hoge」さんが新しい記事を投稿しました。ご確認ください。`,
+      `投稿承認`,
+      [
+        NewPostbackAction(
+          keyword.APPROVE,
+          JSON.stringify({
+            action: keyword.APPROVE,
+            target: 'rg-0001-230428-161200',
+          } as PostbackData),
+        ),
+        NewPostbackAction(
+          keyword.REJECT,
+          JSON.stringify({
+            action: keyword.REJECT,
+            target: 'rg-0001-230428-161200',
+          } as PostbackData),
+        ),
+      ],
+    ),
+  )
+
   expect(
-    askReviewPost(`タイトル`, `本文`, [`images/2301/25ot.png`, `images/2211/24py.png`]),
+    PostPreview(`タイトル`, `本文`, [`images/2301/25ot.png`, `images/2211/24py.png`]),
   ).toMatchObject({
     type: 'flex',
-    altText: 'This is a Flex Message',
+    altText: '投稿プレビュー',
     contents: {
       type: 'bubble',
       hero: {
@@ -107,45 +137,10 @@ test(`line recipient_line/post message`, async () => {
                 wrap: true,
               },
             ],
-            paddingBottom: 'none',
             paddingAll: 'xxl',
           },
         ],
         paddingAll: 'none',
-      },
-      footer: {
-        type: 'box',
-        layout: 'vertical',
-        spacing: 'sm',
-        contents: [
-          {
-            type: 'button',
-            style: 'link',
-            height: 'sm',
-            action: {
-              type: 'message',
-              label: '許可',
-              text: '許可',
-            },
-          },
-          {
-            type: 'button',
-            style: 'link',
-            height: 'sm',
-            action: {
-              type: 'message',
-              label: '不許可',
-              text: '不許可',
-            },
-          },
-          {
-            type: 'box',
-            layout: 'vertical',
-            contents: [],
-            margin: 'sm',
-          },
-        ],
-        flex: 0,
       },
     },
   })

@@ -38,9 +38,7 @@ import {
 import { GetRecipientById } from '../../lib/firestore/recipient'
 
 export class managerLineHandler {
-  constructor(private client: Client) {
-    this.client = client
-  }
+  constructor(private managerClient: Client, private recipientClient: Client) {}
 
   async handle(req: Request, res: Response) {
     if (!req.body.events || req.body.events.length === 0) {
@@ -53,23 +51,25 @@ export class managerLineHandler {
 
     // handleEventが必要なDB処理などを実行しユーザー返答Message配列のPromiseを返してくる。
     // this.clientは渡さなくてよくなる
-    const messages = await handleEvent(this.client, event).catch((err) => {
-      if (err instanceof Error) {
-        console.error(err)
-        // LINEでエラーの旨を伝えたいので一旦コメントアウト
-        // return res.status(500).json({
-        // status: 'error',
-        //});
-        // 異常時は定型メッセージで応答
-        return [TextTemplate(phrase.systemError)]
-      }
-    })
+    const messages = await handleEvent(this.managerClient, this.recipientClient, event).catch(
+      (err) => {
+        if (err instanceof Error) {
+          console.error(err)
+          // LINEでエラーの旨を伝えたいので一旦コメントアウト
+          // return res.status(500).json({
+          // status: 'error',
+          //});
+          // 異常時は定型メッセージで応答
+          return [TextTemplate(phrase.systemError)]
+        }
+      },
+    )
 
     // 正常時にそのメッセージを返し、結果をmapに集約する
 
     //eventの種類によってはreplyを行わない。
     if (event.type === 'message' || event.type === 'follow') {
-      if (messages) result = await this.client.replyMessage(event.replyToken, messages)
+      if (messages) result = await this.managerClient.replyMessage(event.replyToken, messages)
     }
 
     // すべてが終わり、resultsをBodyとしてhttpの200を返してる
@@ -80,7 +80,11 @@ export class managerLineHandler {
   }
 }
 
-const handleEvent = async (client: Client, event: WebhookEvent): Promise<Message[] | void> => {
+const handleEvent = async (
+  managerClient: Client,
+  recipientClient: Client,
+  event: WebhookEvent,
+): Promise<Message[] | void> => {
   let manager_ = await getManagerByLineId(event.source.userId)
   if (manager_ === undefined) {
     manager_ = await createManager(event.source.userId)
@@ -104,13 +108,18 @@ const handleEvent = async (client: Client, event: WebhookEvent): Promise<Message
     const messages = await react(event, manager)
     return messages
   } else if (event.type === 'postback') {
-    const messages = await reactPostback(client, event, manager)
+    const messages = await reactPostback(recipientClient, managerClient, event, manager)
     return messages
   }
 }
 
 //: Promise<Message[]>
-const reactPostback = async (client: Client, event: PostbackEvent, manager: Manager) => {
+const reactPostback = async (
+  recipientClient: Client,
+  managerClient: Client,
+  event: PostbackEvent,
+  manager: Manager,
+) => {
   let data: PostbackData = JSON.parse(event.postback.data)
   let post = await GetPostById(data.target)
   switch (data.action) {
@@ -119,29 +128,31 @@ const reactPostback = async (client: Client, event: PostbackEvent, manager: Mana
       post.isRecipientWorking = false
       await updatePost(post)
       Push(
-        client,
+        recipientClient,
         [(await GetRecipientById(post.recipientId)).lineId],
         [ApprovedPostForRecipient(manager.name, post.subject)],
       )
       Push(
-        client,
+        managerClient,
         (await getManagers()).map((m) => m.lineId),
         [ApprovedPostForManager(manager.name, post.subject)],
       )
+      break
     case keyword.REJECT:
       post.status = postStatus.REJECTED
       post.isRecipientWorking = false
       await updatePost(post)
       Push(
-        client,
+        recipientClient,
         [(await GetRecipientById(post.recipientId)).lineId],
         [RejectedPostForRecipient(manager.name, post.subject)],
       )
       Push(
-        client,
+        managerClient,
         (await getManagers()).map((m) => m.lineId),
         [RejectedPostForManager(manager.name, post.subject)],
       )
+      break
   }
 }
 
