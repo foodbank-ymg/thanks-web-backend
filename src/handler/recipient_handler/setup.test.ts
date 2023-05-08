@@ -1,3 +1,4 @@
+import { TextTemplate } from '../../lib/line/template'
 import {
   askName,
   askNameAgain,
@@ -7,6 +8,7 @@ import {
   tellWelcomeBack,
   askRecipientId,
   askRecipientIdAgain,
+  cannotPost,
 } from './setup'
 
 test('line recipient_line/setup message', async () => {
@@ -53,4 +55,7 @@ test('line recipient_line/setup message', async () => {
     type: 'text',
     text: '団体IDが見つかりません。もう一度入力をお願いします。',
   })
+  expect(cannotPost(`hoge`)).toMatchObject(
+    TextTemplate(`以前投稿された「hoge」が承認待ちのため、投稿できません。`),
+  )
 })
