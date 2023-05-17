@@ -7,7 +7,7 @@ import {
   WebhookEvent,
 } from '@line/bot-sdk'
 import { Request, Response } from 'express'
-import { managerStatus, postStatus } from '../../consts/constants'
+import { managerStatus, postStatus, recipientStatus } from '../../consts/constants'
 import { keyword } from '../../consts/keyword'
 import { phrase } from '../../consts/phrase'
 import {
@@ -30,12 +30,12 @@ import { PostbackData } from '../../types/postback'
 import { GetPostById, updatePost } from '../../lib/firestore/post'
 import { Push } from '../../lib/line/line'
 import {
-  ApprovedPostForManager,
-  ApprovedPostForRecipient,
-  RejectedPostForManager,
-  RejectedPostForRecipient,
+  approvedPostForManager,
+  approvedPostForRecipient,
+  rejectedPostForManager,
+  rejectedPostForRecipient,
 } from './post'
-import { GetRecipientById } from '../../lib/firestore/recipient'
+import { GetRecipientById, updateRecipient } from '../../lib/firestore/recipient'
 
 export class managerLineHandler {
   constructor(private managerClient: Client, private recipientClient: Client) {}
@@ -120,37 +120,34 @@ const reactPostback = async (
   event: PostbackEvent,
   manager: Manager,
 ) => {
-  let data: PostbackData = JSON.parse(event.postback.data)
-  let post = await GetPostById(data.target)
+  const data: PostbackData = JSON.parse(event.postback.data)
+  const post = await GetPostById(data.target)
+  const recipient = await GetRecipientById(post.recipientId)
   switch (data.action) {
     case keyword.APPROVE:
       post.status = postStatus.APPROVED
       post.isRecipientWorking = false
       await updatePost(post)
-      Push(
-        recipientClient,
-        [(await GetRecipientById(post.recipientId)).lineId],
-        [ApprovedPostForRecipient(manager.name, post.subject)],
-      )
-      Push(
+      recipient.status = recipientStatus.IDLE
+      await updateRecipient(recipient)
+      await Push(recipientClient, [recipient.lineId], [approvedPostForRecipient(post.subject)])
+      await Push(
         managerClient,
         (await getManagers()).map((m) => m.lineId),
-        [ApprovedPostForManager(manager.name, post.subject)],
+        [approvedPostForManager(manager.name, post.subject)],
       )
       break
     case keyword.REJECT:
       post.status = postStatus.REJECTED
       post.isRecipientWorking = false
       await updatePost(post)
-      Push(
-        recipientClient,
-        [(await GetRecipientById(post.recipientId)).lineId],
-        [RejectedPostForRecipient(manager.name, post.subject)],
-      )
-      Push(
+      recipient.status = recipientStatus.IDLE
+      await updateRecipient(recipient)
+      await Push(recipientClient, [recipient.lineId], [rejectedPostForRecipient(post.subject)])
+      await Push(
         managerClient,
         (await getManagers()).map((m) => m.lineId),
-        [RejectedPostForManager(manager.name, post.subject)],
+        [rejectedPostForManager(manager.name, post.subject)],
       )
       break
   }

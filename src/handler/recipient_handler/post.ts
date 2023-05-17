@@ -9,6 +9,7 @@ import {
 } from '../../lib/line/template'
 import { GetUrl } from '../../lib/storage/storage'
 import { PostbackData } from '../../types/postback'
+import { IMAGE_MAX } from './post_handler'
 
 export const askSubject = () => {
   return TextTemplate(`まず、主題を入力してください。`)
@@ -35,7 +36,7 @@ export const askBodyAgain = () => {
 }
 
 export const askImage = () => {
-  return TextTemplate(`次に、画像を一枚づつ送信してください。3枚まで追加できます。`)
+  return TextTemplate(`次に、画像を一枚づつ送信してください。${IMAGE_MAX}枚まで追加できます。`)
 }
 
 export const confirmImage = (len: number) => {
@@ -54,9 +55,7 @@ export const confirmPost = () => {
 }
 
 export const completePost = () => {
-  return TextTemplate(
-    `記事の送信が完了しました。事務局が投稿内容を承認後、翌月の初めに表示されるようになります。`,
-  )
+  return TextTemplate(`記事の送信が完了しました。事務局が投稿内容を承認後、サイトに反映されます。`)
 }
 
 export const discardPost = () => {
@@ -65,7 +64,7 @@ export const discardPost = () => {
   )
 }
 
-export const AskPostReview = (name: string, postId: string) => {
+export const confirmToApprovePost = (name: string, postId: string) => {
   return ConfirmTemplatePostback(
     `「${name}」さんが新しい記事を投稿しました。ご確認ください。`,
     `投稿承認`,
@@ -82,7 +81,7 @@ export const AskPostReview = (name: string, postId: string) => {
   )
 }
 
-export const PostPreview = (subject: string, body: string, images: string[]) => {
+export const previewPost = (subject: string, body: string, images: string[]) => {
   let hero = undefined
   if (images.length > 0) {
     hero = {
@@ -92,17 +91,6 @@ export const PostPreview = (subject: string, body: string, images: string[]) => 
       aspectRatio: '20:13',
       aspectMode: 'cover',
     }
-  }
-  let imageObjects = []
-  if (images.length > 1) {
-    imageObjects = images.slice(1).map((image) => {
-      return {
-        type: 'image',
-        url: GetUrl(image),
-        size: 'full',
-        aspectRatio: '20:13',
-      }
-    })
   }
 
   return {
@@ -115,12 +103,6 @@ export const PostPreview = (subject: string, body: string, images: string[]) => 
         type: 'box',
         layout: 'vertical',
         contents: [
-          {
-            type: 'box',
-            layout: 'horizontal',
-            contents: imageObjects,
-            paddingAll: 'none',
-          },
           {
             type: 'box',
             layout: 'vertical',
@@ -147,4 +129,8 @@ export const PostPreview = (subject: string, body: string, images: string[]) => 
       },
     },
   } as FlexMessage
+}
+
+export const cannotPost = (subject: string) => {
+  return TextTemplate(`以前投稿された「${subject}」が承認待ちのため、投稿できません。`)
 }

@@ -35,7 +35,3 @@ export const askRecipientId = () => {
 export const askRecipientIdAgain = () => {
   return TextTemplate('団体IDが見つかりません。もう一度入力をお願いします。')
 }
-
-export const cannotPost = (subject: string) => {
-  return TextTemplate(`以前投稿された「${subject}」が承認待ちのため、投稿できません。`)
-}

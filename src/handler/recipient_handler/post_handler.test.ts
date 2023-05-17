@@ -6,7 +6,6 @@ import { TextTemplate } from '../../lib/line/template'
 import { Post } from '../../types/post'
 import { Recipient } from '../../types/recipient'
 import {
-  PostPreview,
   askBody,
   askImage,
   askSubjectAgain,
@@ -15,6 +14,7 @@ import {
   confirmPost,
   confirmSubject,
   discardPost,
+  previewPost,
 } from './post'
 import { reactPostText } from './post_handler'
 import admin from 'firebase-admin'
@@ -114,7 +114,7 @@ describe('recipient_handler/post_handler 記事投稿', () => {
   it(':画像完了', async () => {
     const post = getPost(postStatus.INPUT_IMAGE)
     expect(await reactPostText(managerClient, keyword.FINISH_IMAGE, recipient, post)).toMatchObject(
-      [PostPreview(post.subject, post.body, post.images), confirmPost()],
+      [previewPost(post.subject, post.body, post.images), confirmPost()],
     )
   })
 

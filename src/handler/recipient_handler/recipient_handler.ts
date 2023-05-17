@@ -1,6 +1,6 @@
 import { Client, Message, MessageAPIResponseBase, MessageEvent, WebhookEvent } from '@line/bot-sdk'
 import { Request, Response } from 'express'
-import { postStatus, recipientStatus } from '../../consts/constants'
+import { recipientStatus } from '../../consts/constants'
 import { keyword } from '../../consts/keyword'
 import { phrase } from '../../consts/phrase'
 import { getRecipientGroupById } from '../../lib/firestore/recipientGroup'
@@ -20,7 +20,6 @@ import {
   tellWelcomeBack,
   askRecipientId,
   askRecipientIdAgain,
-  cannotPost,
 } from './setup'
 import { reactPostImage, reactPostText } from './post_handler'
 import { createPost, getWorkingPostByRecipientId } from '../../lib/firestore/post'
@@ -128,8 +127,6 @@ const react = async (
             post = await getWorkingPostByRecipientId(recipient.id)
             if (post === undefined) {
               post = await createPost(recipient)
-            } else if (post.status === postStatus.WAITING_REVIEW) {
-              return [cannotPost(post.subject)]
             }
             await updateRecipient(recipient)
             return [askSubject()]
