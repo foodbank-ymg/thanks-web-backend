@@ -27,7 +27,7 @@ import sharp from 'sharp'
 import { Push } from '../../lib/line/line'
 import { getManagers } from '../../lib/firestore/manager'
 
-export const IMAGE_MAX = 3
+export const IMAGE_MAX = 1
 const IMAGE_SIZE = 680
 
 export const reactPostText = async (
