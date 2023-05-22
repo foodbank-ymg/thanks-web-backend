@@ -5,4 +5,6 @@ export const keyword = {
   FINISH_IMAGE: '画像完了',
   DECIDE: '決定',
   DISCARD: '破棄',
+  APPROVE: '許可',
+  REJECT: '不許可',
 }

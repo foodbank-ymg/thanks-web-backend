@@ -4,6 +4,13 @@ import { recipientStatus } from '../../consts/constants'
 import { makeId } from '../../utils/random/random'
 import { Recipient } from '../../types/recipient'
 
+export const GetRecipientById = async (id: string) => {
+  let recipient: Recipient = (
+    await db.collection('recipients').doc(id).withConverter<Recipient>(recipientConverter).get()
+  ).data()
+  return recipient
+}
+
 export const getRecipientByLineId = async (lineId: string) => {
   let recipient = undefined
   ;(

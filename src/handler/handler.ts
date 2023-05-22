@@ -1,8 +1,8 @@
 import { Client, middleware } from '@line/bot-sdk'
 import express from 'express'
 import { loadConfig } from '../config/config'
-import { managerLineHandler } from './manager_line/manager_line'
-import { recipientLineHandler } from './recipient_line/recipient_line'
+import { managerLineHandler } from './manager_handler/manager_handler'
+import { recipientLineHandler } from './recipient_handler/recipient_handler'
 import { newFirestore } from '../lib/firestore/firestore'
 import { newStorage } from '../lib/storage/storage'
 import admin from 'firebase-admin'
@@ -28,14 +28,14 @@ const recipientClient = new Client({
 })
 admin.initializeApp()
 newFirestore()
-newStorage(config.projectId)
+newStorage()
 
 app.post('/manager-line', managerMiddleware, (req, res) =>
-  new managerLineHandler(managerClient).handle(req, res),
+  new managerLineHandler(managerClient, recipientClient).handle(req, res),
 ) //* without [(req, res) =>] it was not working. temporary fix.
 
 app.post('/recipient-line', recipientMiddleware, (req, res) =>
-  new recipientLineHandler(recipientClient).handle(req, res),
+  new recipientLineHandler(managerClient, recipientClient).handle(req, res),
 )
 
 // TODO: 仕様が固まり次第着手します

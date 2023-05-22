@@ -1,4 +1,4 @@
-import { Message } from '@line/bot-sdk'
+import { Client, Message } from '@line/bot-sdk'
 import { Recipient } from '../../types/recipient'
 import { Post } from '../../types/post'
 import { postStatus, recipientStatus } from '../../consts/constants'
@@ -8,24 +8,30 @@ import {
   askBody,
   askBodyAgain,
   askImage,
+  confirmToApprovePost,
   askSubjectAgain,
+  cannotPost,
   completePost,
   confirmBody,
   confirmImage,
   confirmPost,
   confirmSubject,
   discardPost,
+  previewPost,
 } from './post'
 import { keyword } from '../../consts/keyword'
 import { phrase } from '../../consts/phrase'
 import { deletePostData, uploadImage } from '../../lib/storage/post'
 import { updateRecipient } from '../../lib/firestore/recipient'
 import sharp from 'sharp'
+import { Push } from '../../lib/line/line'
+import { getManagers } from '../../lib/firestore/manager'
 
-const IMAGE_MAX = 3
+export const IMAGE_MAX = 1
 const IMAGE_SIZE = 680
 
 export const reactPostText = async (
+  managerClient: Client,
   text: string,
   recipient: Recipient,
   post: Post,
@@ -73,15 +79,22 @@ export const reactPostText = async (
       if (text === keyword.FINISH_IMAGE) {
         post.status = postStatus.CONFIRM_SUBMIT
         await updatePost(post)
-        return [confirmPost()]
+        return [previewPost(post.subject, post.body, post.images), confirmPost()]
       }
-    case postStatus.CONFIRM_SUBMIT: //TODO STILL CREATING
+      break
+    case postStatus.CONFIRM_SUBMIT:
       switch (text) {
-        case keyword.DECIDE: //TODO ADD REVIEW FLOW
-          recipient.status = recipientStatus.IDLE
-          await updateRecipient(recipient)
+        case keyword.DECIDE:
           post.status = postStatus.WAITING_REVIEW
           await updatePost(post)
+          await Push(
+            managerClient,
+            (await getManagers()).map((m) => m.lineId),
+            [
+              previewPost(post.subject, post.body, post.images),
+              confirmToApprovePost(recipient.name, post.id),
+            ],
+          )
           return [completePost()]
         case keyword.DISCARD:
           recipient.status = recipientStatus.IDLE
@@ -92,6 +105,8 @@ export const reactPostText = async (
         default:
           return [TextTemplate(phrase.aOrb(keyword.DECIDE, keyword.DISCARD))]
       }
+    case postStatus.WAITING_REVIEW:
+      return [cannotPost(post.subject)]
   }
 }
 
@@ -107,7 +122,7 @@ export const reactPostImage = async (image: Buffer, post: Post): Promise<Message
       if (post.images.length >= IMAGE_MAX) {
         post.status = postStatus.CONFIRM_SUBMIT
         await updatePost(post)
-        return [confirmPost()]
+        return [previewPost(post.subject, post.body, post.images), confirmPost()]
       } else {
         return [confirmImage(post.images.length)]
       }

@@ -52,8 +52,7 @@ describe(`line line/template `, () => {
       quickReply: {
         items: [
           {
-            type: 'action', // ③
-            imageUrl: 'https://example.com/sushi.png',
+            type: 'action',
             action: {
               type: 'message',
               label: 'A',
@@ -61,8 +60,7 @@ describe(`line line/template `, () => {
             },
           },
           {
-            type: 'action', // ③
-            imageUrl: 'https://example.com/sushi.png',
+            type: 'action', //
             action: {
               type: 'message',
               label: 'B',

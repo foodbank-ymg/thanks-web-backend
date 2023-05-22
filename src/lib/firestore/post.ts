@@ -5,6 +5,13 @@ import { Recipient } from '../../types/recipient'
 import { Post } from '../../types/post'
 import moment from 'moment'
 
+export const GetPostById = async (id: string) => {
+  let post: Post = (
+    await db.collection('posts').doc(id).withConverter<Post>(postConverter).get()
+  ).data()
+  return post
+}
+
 export const getWorkingPostByRecipientId = async (id: string) => {
   let post = undefined
   ;(
