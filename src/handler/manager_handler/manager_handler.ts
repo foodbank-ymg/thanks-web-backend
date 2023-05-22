@@ -119,12 +119,13 @@ const reactPostback = async (
   managerClient: Client,
   event: PostbackEvent,
   manager: Manager,
-) => {
+): Promise<Message[]> => {
   const data: PostbackData = JSON.parse(event.postback.data)
   const post = await GetPostById(data.target)
   const recipient = await GetRecipientById(post.recipientId)
   switch (data.action) {
     case keyword.APPROVE:
+      if (post.status != postStatus.WAITING_REVIEW) return []
       post.status = postStatus.APPROVED
       post.isRecipientWorking = false
       await updatePost(post)
@@ -138,6 +139,7 @@ const reactPostback = async (
       )
       break
     case keyword.REJECT:
+      if (post.status != postStatus.WAITING_REVIEW) return []
       post.status = postStatus.REJECTED
       post.isRecipientWorking = false
       await updatePost(post)
@@ -151,6 +153,7 @@ const reactPostback = async (
       )
       break
   }
+  return []
 }
 
 const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> => {

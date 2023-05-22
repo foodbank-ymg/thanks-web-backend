@@ -85,8 +85,6 @@ export const reactPostText = async (
     case postStatus.CONFIRM_SUBMIT:
       switch (text) {
         case keyword.DECIDE:
-          recipient.status = recipientStatus.INPUT_POST
-          await updateRecipient(recipient)
           post.status = postStatus.WAITING_REVIEW
           await updatePost(post)
           await Push(
