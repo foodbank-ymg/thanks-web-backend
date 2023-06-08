@@ -36,6 +36,8 @@ import {
   rejectedPostForRecipient,
 } from './post'
 import { GetRecipientById, updateRecipient } from '../../lib/firestore/recipient'
+import { insertLog, postSummary } from '../../lib/sheet/log'
+import { action } from '../../consts/log'
 
 export class managerLineHandler {
   constructor(private managerClient: Client, private recipientClient: Client) {}
@@ -137,6 +139,7 @@ const reactPostback = async (
         (await getManagers()).map((m) => m.lineId),
         [approvedPostForManager(manager.name, post.subject)],
       )
+      insertLog(manager.name, action.APPROVE_POST, postSummary(post))
       break
     case keyword.REJECT:
       if (post.status != postStatus.WAITING_REVIEW) return []
@@ -151,6 +154,7 @@ const reactPostback = async (
         (await getManagers()).map((m) => m.lineId),
         [rejectedPostForManager(manager.name, post.subject)],
       )
+      insertLog(manager.name, action.REJECT_POST, postSummary(post))
       break
   }
   return []

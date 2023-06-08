@@ -22,10 +22,12 @@ import {
 import { keyword } from '../../consts/keyword'
 import { phrase } from '../../consts/phrase'
 import { deletePostData, uploadImage } from '../../lib/storage/post'
-import { updateRecipient } from '../../lib/firestore/recipient'
+import { GetRecipientById, updateRecipient } from '../../lib/firestore/recipient'
 import sharp from 'sharp'
 import { Push } from '../../lib/line/line'
 import { getManagers } from '../../lib/firestore/manager'
+import { insertLog, postSummary, recipientSummary } from '../../lib/sheet/log'
+import { action } from '../../consts/log'
 
 export const IMAGE_MAX = 1
 const IMAGE_SIZE = 680
@@ -95,6 +97,8 @@ export const reactPostText = async (
               confirmToApprovePost(recipient.name, post.id),
             ],
           )
+          const groupName = (await GetRecipientById(post.recipientId)).name
+          insertLog(await recipientSummary(recipient), action.SEND_POST, postSummary(post))
           return [completePost()]
         case keyword.DISCARD:
           recipient.status = recipientStatus.IDLE
