@@ -63,7 +63,7 @@ const postConverter = {
 
 export const createPost = async (recipient: Recipient) => {
   const newPost: Post = {
-    id: `${recipient.recipientGroupId}-${moment().format('YYmmdd-HHMMSS')}`,
+    id: `${recipient.recipientGroupId}-${moment().utcOffset(9).format('YYMMDD-hhmmss')}`,
     recipientGroupId: recipient.recipientGroupId,
     recipientId: recipient.id,
     status: postStatus.INPUT_SUBJECT,
