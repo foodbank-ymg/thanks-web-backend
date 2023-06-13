@@ -72,7 +72,8 @@ export class managerLineHandler {
 
     //eventの種類によってはreplyを行わない。
     if (event.type === 'message' || event.type === 'follow') {
-      if (messages) result = await this.managerClient.replyMessage(event.replyToken, messages)
+      if (messages && messages.length > 0)
+        result = await this.managerClient.replyMessage(event.replyToken, messages)
     }
 
     // すべてが終わり、resultsをBodyとしてhttpの200を返してる
@@ -168,6 +169,7 @@ const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> 
         switch (event.message.text) {
           case keyword.DELETE_POST:
             manager.status = managerStatus.DELETE_POST
+            await updateManager(manager)
             return [askPostId()]
           case keyword.DO_NOTHING:
             return []
