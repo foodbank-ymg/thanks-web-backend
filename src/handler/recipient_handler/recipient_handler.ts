@@ -130,6 +130,8 @@ const react = async (
             }
             await updateRecipient(recipient)
             return [askSubject()]
+          case keyword.DO_NOTHING:
+            return []
           default:
             return [QuickReplyTemplate('こんにちは！何をしますか?', ['記事投稿', '何もしない'])]
         }

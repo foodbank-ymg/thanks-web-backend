@@ -16,7 +16,7 @@ import {
   getManagers,
   updateManager,
 } from '../../lib/firestore/manager'
-import { TextTemplate } from '../../lib/line/template'
+import { QuickReplyTemplate, TextTemplate } from '../../lib/line/template'
 import { Manager } from '../../types/managers'
 import {
   askName,
@@ -38,6 +38,7 @@ import {
 import { GetRecipientById, updateRecipient } from '../../lib/firestore/recipient'
 import { insertLog, postSummary } from '../../lib/sheet/log'
 import { action } from '../../consts/log'
+import { askPostId } from '../manager_line/post'
 
 export class managerLineHandler {
   constructor(private managerClient: Client, private recipientClient: Client) {}
@@ -163,6 +164,21 @@ const reactPostback = async (
 const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> => {
   if (event.message.type === 'text') {
     switch (manager.status) {
+      case managerStatus.IDLE:
+        switch (event.message.text) {
+          case keyword.DELETE_POST:
+            manager.status = managerStatus.DELETE_POST
+            return [askPostId()]
+          case keyword.DO_NOTHING:
+            return []
+          default:
+            return [
+              QuickReplyTemplate('こんにちは！何をしますか?', [
+                keyword.DELETE_POST,
+                keyword.DO_NOTHING,
+              ]),
+            ]
+        }
       case managerStatus.INPUT_NAME:
         manager.status = managerStatus.CONFIRM_NAME
         manager.name = event.message.text
