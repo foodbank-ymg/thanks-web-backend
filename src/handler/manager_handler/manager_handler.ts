@@ -27,7 +27,7 @@ import {
   tellWelcomeBack,
 } from './setup'
 import { PostbackData } from '../../types/postback'
-import { GetPostById, updatePost } from '../../lib/firestore/post'
+import { GetPostById, deletePost, updatePost } from '../../lib/firestore/post'
 import { Push } from '../../lib/line/line'
 import {
   approvedPostForManager,
@@ -38,7 +38,8 @@ import {
 import { GetRecipientById, updateRecipient } from '../../lib/firestore/recipient'
 import { insertLog, postSummary } from '../../lib/sheet/log'
 import { action } from '../../consts/log'
-import { askPostId } from '../manager_line/post'
+import { askPostId, deletePostSuccess, notFoundPost } from '../manager_line/post'
+import { deletePostData } from '../../lib/storage/post'
 
 export class managerLineHandler {
   constructor(private managerClient: Client, private recipientClient: Client) {}
@@ -201,6 +202,17 @@ const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> 
             return [askNameAgain()]
           default:
             return [TextTemplate(phrase.yesOrNo)]
+        }
+      case managerStatus.DELETE_POST:
+        const post = await GetPostById(event.message.text)
+        manager.status = managerStatus.IDLE
+        await updateManager(manager)
+        if (post === undefined) {
+          return [notFoundPost()]
+        } else {
+          await deletePost(post)
+          deletePostData(post).catch((err) => console.error(err))
+          return [deletePostSuccess(post.subject)]
         }
     }
   } else {
