@@ -212,6 +212,7 @@ const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> 
         } else {
           await deletePost(post)
           deletePostData(post).catch((err) => console.error(err))
+          insertLog(manager.name, action.DELETE_POST, postSummary(post))
           return [deletePostSuccess(post.subject)]
         }
     }
