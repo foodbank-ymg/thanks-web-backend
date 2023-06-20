@@ -5,6 +5,9 @@ export type Config = {
   managerLineAccessToken: string
   recipientLineSecret: string
   recipientLineAccessToken: string
+  githubBranch: string
+  githubUserName: string
+  githubToken: string
 }
 
 var config: Config | undefined
@@ -22,6 +25,9 @@ export const loadConfig = (): Config => {
       managerLineAccessToken: process.env.MANAGER_LINE_TOKEN,
       recipientLineSecret: process.env.RECIPIENT_LINE_SECRET,
       recipientLineAccessToken: process.env.RECIPIENT_LINE_TOKEN,
+      githubBranch: process.env.GITHUB_BRANCH,
+      githubUserName: process.env.GITHUB_USER_NAME,
+      githubToken: process.env.GITHUB_TOKEN,
     }
   }
 
