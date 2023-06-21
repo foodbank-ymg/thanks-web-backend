@@ -16,7 +16,7 @@ import {
   getManagers,
   updateManager,
 } from '../../lib/firestore/manager'
-import { TextTemplate } from '../../lib/line/template'
+import { QuickReplyTemplate, TextTemplate } from '../../lib/line/template'
 import { Manager } from '../../types/managers'
 import {
   askName,
@@ -27,7 +27,7 @@ import {
   tellWelcomeBack,
 } from './setup'
 import { PostbackData } from '../../types/postback'
-import { GetPostById, updatePost } from '../../lib/firestore/post'
+import { GetPostById, deletePost, updatePost } from '../../lib/firestore/post'
 import { Push } from '../../lib/line/line'
 import {
   approvedPostForManager,
@@ -38,6 +38,8 @@ import {
 import { GetRecipientById, updateRecipient } from '../../lib/firestore/recipient'
 import { insertLog, postSummary } from '../../lib/sheet/log'
 import { action } from '../../consts/log'
+import { askPostId, deletePostSuccess, notFoundPost } from '../manager_line/post'
+import { deletePostData } from '../../lib/storage/post'
 
 export class managerLineHandler {
   constructor(private managerClient: Client, private recipientClient: Client) {}
@@ -71,7 +73,8 @@ export class managerLineHandler {
 
     //eventの種類によってはreplyを行わない。
     if (event.type === 'message' || event.type === 'follow') {
-      if (messages) result = await this.managerClient.replyMessage(event.replyToken, messages)
+      if (messages && messages.length > 0)
+        result = await this.managerClient.replyMessage(event.replyToken, messages)
     }
 
     // すべてが終わり、resultsをBodyとしてhttpの200を返してる
@@ -163,6 +166,22 @@ const reactPostback = async (
 const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> => {
   if (event.message.type === 'text') {
     switch (manager.status) {
+      case managerStatus.IDLE:
+        switch (event.message.text) {
+          case keyword.DELETE_POST:
+            manager.status = managerStatus.DELETE_POST
+            await updateManager(manager)
+            return [askPostId()]
+          case keyword.DO_NOTHING:
+            return []
+          default:
+            return [
+              QuickReplyTemplate('こんにちは！何をしますか?', [
+                keyword.DELETE_POST,
+                keyword.DO_NOTHING,
+              ]),
+            ]
+        }
       case managerStatus.INPUT_NAME:
         manager.status = managerStatus.CONFIRM_NAME
         manager.name = event.message.text
@@ -183,6 +202,18 @@ const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> 
             return [askNameAgain()]
           default:
             return [TextTemplate(phrase.yesOrNo)]
+        }
+      case managerStatus.DELETE_POST:
+        const post = await GetPostById(event.message.text)
+        manager.status = managerStatus.IDLE
+        await updateManager(manager)
+        if (post === undefined) {
+          return [notFoundPost()]
+        } else {
+          await deletePost(post)
+          deletePostData(post).catch((err) => console.error(err))
+          insertLog(manager.name, action.DELETE_POST, postSummary(post))
+          return [deletePostSuccess(post.subject)]
         }
     }
   } else {
