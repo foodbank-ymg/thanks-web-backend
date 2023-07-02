@@ -2,7 +2,7 @@ on:
   push:
     branches:
       - develop
-      - feature/review-post
+      - feature/addGroupName
 
 name: Build and Deploy to Cloud Run on merge to branch 'develop'
 env:
