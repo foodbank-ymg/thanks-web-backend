@@ -6,6 +6,7 @@ import { recipientLineHandler } from './recipient_handler/recipient_handler'
 import { newFirestore } from '../lib/firestore/firestore'
 import { newStorage } from '../lib/storage/storage'
 import admin from 'firebase-admin'
+import { newSheet } from '../lib/sheet/sheet'
 
 export const app = express()
 
@@ -29,6 +30,7 @@ const recipientClient = new Client({
 admin.initializeApp()
 newFirestore()
 newStorage()
+newSheet()
 
 app.post('/manager-line', managerMiddleware, (req, res) =>
   new managerLineHandler(managerClient, recipientClient).handle(req, res),

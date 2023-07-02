@@ -1,13 +1,6 @@
-import {
-  Client,
-  Message,
-  MessageAPIResponseBase,
-  MessageEvent,
-  TextMessage,
-  WebhookEvent,
-} from '@line/bot-sdk'
+import { Client, Message, MessageAPIResponseBase, MessageEvent, WebhookEvent } from '@line/bot-sdk'
 import { Request, Response } from 'express'
-import { postStatus, recipientStatus } from '../../consts/constants'
+import { recipientStatus } from '../../consts/constants'
 import { keyword } from '../../consts/keyword'
 import { phrase } from '../../consts/phrase'
 import { getRecipientGroupById } from '../../lib/firestore/recipientGroup'
@@ -28,41 +21,43 @@ import {
   askRecipientId,
   askRecipientIdAgain,
 } from './setup'
-import { reactPostImage, reactPostText } from './post_line'
-import { createPost, getWorkingPostByRecipientId, updatePost } from '../../lib/firestore/post'
+import { reactPostImage, reactPostText } from './post_handler'
+import { createPost, getWorkingPostByRecipientId } from '../../lib/firestore/post'
 import { askSubject } from './post'
 import { Post } from '../../types/post'
 
-export var client: Client | undefined
-
 export class recipientLineHandler {
-  constructor(private client_: Client) {
-    client = client_
-  }
+  constructor(private managerClient: Client, private recipientClient: Client) {}
 
   async handle(req: Request, res: Response) {
+    if (!req.body.events || req.body.events.length === 0) {
+      return res.status(200)
+    }
+
     const event: WebhookEvent = req.body.events[0]
 
     let result: MessageAPIResponseBase = undefined
     // handleEventが必要なDB処理などを実行しユーザー返答Message配列のPromiseを返してくる。
     // this.clientは渡さなくてよくなる
-    const messages = await handleEvent(client, event).catch((err) => {
-      if (err instanceof Error) {
-        console.error(err)
-        // LINEでエラーの旨を伝えたいので一旦コメントアウト
-        // return res.recipientStatus(500).json({
-        // recipientStatus: 'error',
-        //});
-        // 異常時は定型メッセージで応答
-        return [TextTemplate(phrase.systemError)]
-      }
-    })
+    const messages = await handleEvent(this.managerClient, this.recipientClient, event).catch(
+      (err) => {
+        if (err instanceof Error) {
+          console.error(err)
+          // LINEでエラーの旨を伝えたいので一旦コメントアウト
+          // return res.recipientStatus(500).json({
+          // recipientStatus: 'error',
+          //});
+          // 異常時は定型メッセージで応答
+          return [TextTemplate(phrase.systemError)]
+        }
+      },
+    )
 
     // 正常時にそのメッセージを返し、結果をmapに集約する
 
     //eventの種類によってはreplyを行わない。
     if (event.type === 'message' || event.type === 'follow') {
-      if (messages) result = await client.replyMessage(event.replyToken, messages)
+      if (messages) result = await this.recipientClient.replyMessage(event.replyToken, messages)
     }
 
     // すべてが終わり、resultsをBodyとしてhttpの200を返してる
@@ -74,7 +69,8 @@ export class recipientLineHandler {
 }
 
 export const handleEvent = async (
-  client: Client,
+  managerClient: Client,
+  recipientClient: Client,
   event: WebhookEvent,
 ): Promise<Message[] | void> => {
   let recipient = await getRecipientByLineId(event.source.userId)
@@ -110,13 +106,14 @@ export const handleEvent = async (
       return [tellWelcomeBack(recipient.name)]
     }
   } else if (event.type === 'message') {
-    const messages = await react(client, event, recipient, post)
+    const messages = await react(managerClient, recipientClient, event, recipient, post)
     return messages
   }
 }
 
 const react = async (
-  client: Client,
+  managerClient: Client,
+  recipientClient: Client,
   event: MessageEvent,
   recipient: Recipient,
   post: Post,
@@ -127,7 +124,7 @@ const react = async (
         switch (event.message.text) {
           case keyword.POST:
             recipient.status = recipientStatus.INPUT_POST
-            post = await getWorkingPostByRecipientId(event.source.userId)
+            post = await getWorkingPostByRecipientId(recipient.id)
             if (post === undefined) {
               post = await createPost(recipient)
             }
@@ -167,12 +164,12 @@ const react = async (
           return [completeRegister(recipient.name)]
         }
       case recipientStatus.INPUT_POST:
-        return reactPostText(event.message.text, recipient, post)
+        return reactPostText(managerClient, event.message.text, recipient, post)
     }
   } else if (event.message.type === 'image') {
     switch (recipient.status) {
       case recipientStatus.INPUT_POST:
-        let image = await downloadImageById(client, event.message.id)
+        let image = await downloadImageById(recipientClient, event.message.id)
         return reactPostImage(image, post)
     }
   } else {

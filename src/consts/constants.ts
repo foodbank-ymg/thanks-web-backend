@@ -1,9 +1,9 @@
 export const managerStatus = {
   NONE: '初期状態',
   IDLE: '待機',
-
   INPUT_NAME: '名前入力',
   CONFIRM_NAME: '名前確認',
+  DELETE_POST: '記事削除',
 } as const
 export type managerStatusType = (typeof managerStatus)[keyof typeof managerStatus]
 
