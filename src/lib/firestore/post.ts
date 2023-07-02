@@ -4,6 +4,7 @@ import { postStatus } from '../../consts/constants'
 import { Recipient } from '../../types/recipient'
 import { Post } from '../../types/post'
 import moment from 'moment'
+import { getRecipientGroupById } from './recipientGroup'
 
 export const GetPostById = async (id: string) => {
   let post: Post = (
@@ -32,6 +33,7 @@ const postConverter = {
     return {
       id: post.id,
       recipientGroupId: post.recipientGroupId,
+      recipientGroupName: post.recipientGroupName,
       recipientId: post.recipientId,
       status: post.status,
       subject: post.subject,
@@ -48,6 +50,7 @@ const postConverter = {
     return {
       id: data.id,
       recipientGroupId: data.recipientGroupId,
+      recipientGroupName: data.recipientGroupName,
       recipientId: data.recipientId,
       status: data.status,
       subject: data.subject,
@@ -63,8 +66,9 @@ const postConverter = {
 
 export const createPost = async (recipient: Recipient) => {
   const newPost: Post = {
-    id: `${recipient.recipientGroupId}-${moment().format('YYmmdd-HHMMSS')}`,
+    id: `${recipient.recipientGroupId}-${moment().utcOffset(9).format('YYMMDD-hhmmss')}`,
     recipientGroupId: recipient.recipientGroupId,
+    recipientGroupName: (await getRecipientGroupById(recipient.recipientGroupId)).name,
     recipientId: recipient.id,
     status: postStatus.INPUT_SUBJECT,
     subject: '',
