@@ -127,7 +127,8 @@ const react = async (
             recipient.status = recipientStatus.INPUT_POST
             post = await getWorkingPostByRecipientId(recipient.id)
             if (post === undefined) {
-              post = await createPost(recipient)
+              let groupName = (await getRecipientGroupById(recipient.recipientGroupId)).name
+              post = await createPost(recipient, groupName)
             }
             await updateRecipient(recipient)
             return [askSubject()]

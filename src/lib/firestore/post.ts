@@ -64,11 +64,11 @@ const postConverter = {
   },
 }
 
-export const createPost = async (recipient: Recipient) => {
+export const createPost = async (recipient: Recipient, groupName: string) => {
   const newPost: Post = {
-    id: `${recipient.recipientGroupId}-${moment().utcOffset(9).format('YYMMDD-hhmmss')}`,
+    id: `${moment().utcOffset(9).format('YYMMDD-hhmmss')}`,
     recipientGroupId: recipient.recipientGroupId,
-    recipientGroupName: (await getRecipientGroupById(recipient.recipientGroupId)).name,
+    recipientGroupName: groupName,
     recipientId: recipient.id,
     status: postStatus.INPUT_SUBJECT,
     subject: '',

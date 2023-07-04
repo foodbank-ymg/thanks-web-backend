@@ -3,6 +3,7 @@ import { keyword } from '../../consts/keyword'
 import { phrase } from '../../consts/phrase'
 import { newFirestore } from '../../lib/firestore/firestore'
 import { TextTemplate } from '../../lib/line/template'
+import { recipientSummary } from '../../lib/sheet/summary'
 import { Post } from '../../types/post'
 import { Recipient } from '../../types/recipient'
 import { RecipientGroup } from '../../types/recipientGroup'
@@ -75,6 +76,10 @@ jest.mock('../../lib/firestore/recipient', () => ({
   updateRecipient: jest.fn(),
 }))
 
+jest.mock('../../lib/sheet/log', () => ({
+  insertLog: jest.fn(),
+}))
+
 const mockGetRecipientGroup = jest.fn()
 
 jest.mock('../../lib/firestore/recipientGroup', () => ({
@@ -87,6 +92,7 @@ describe('recipient_handler/post_handler 記事投稿', () => {
   const managerClient = undefined as any
   const recipient = getRecipient()
   mockGetRecipientGroup.mockReturnValue(getRecipientGroup())
+  recipientSummary(recipient, 'test')
 
   it(':主題入力', async () => {
     const post = getPost(postStatus.INPUT_SUBJECT)
