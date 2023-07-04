@@ -41,6 +41,7 @@ import { action } from '../../consts/log'
 import { askPostId, deletePostSuccess, notFoundPost } from '../manager_line/post'
 import { deletePostData } from '../../lib/storage/post'
 import { postSummary } from '../../lib/sheet/summary'
+import moment from 'moment'
 
 export class managerLineHandler {
   constructor(private managerClient: Client, private recipientClient: Client) {}
@@ -134,6 +135,7 @@ const reactPostback = async (
       if (post.status != postStatus.WAITING_REVIEW) return []
       post.status = postStatus.APPROVED
       post.isRecipientWorking = false
+      post.approvedAt = moment().utcOffset(9).toDate()
       await updatePost(post)
       recipient.status = recipientStatus.IDLE
       await updateRecipient(recipient)

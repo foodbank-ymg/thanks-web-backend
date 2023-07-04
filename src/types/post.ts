@@ -12,5 +12,6 @@ export type Post = {
   feedback: string
   isRecipientWorking: boolean
   createdAt: Date
+  approvedAt: Date
   publishedAt: Date
 }

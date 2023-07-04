@@ -42,6 +42,7 @@ const postConverter = {
       feedback: post.feedback,
       isRecipientWorking: post.isRecipientWorking,
       createdAt: post.createdAt,
+      approvedAt: post.approvedAt,
       publishedAt: post.publishedAt,
     }
   },
@@ -59,6 +60,7 @@ const postConverter = {
       feedback: data.feedback,
       isRecipientWorking: data.isRecipientWorking,
       createdAt: data.createdAt.toDate(),
+      approvedAt: data.approvedAt ? data.approvedAt.toDate() : null,
       publishedAt: data.publishedAt ? data.publishedAt.toDate() : null,
     }
   },
@@ -76,7 +78,8 @@ export const createPost = async (recipient: Recipient, groupName: string) => {
     images: [],
     feedback: '',
     isRecipientWorking: true,
-    createdAt: new Date(),
+    createdAt: moment().utcOffset(9).toDate(),
+    approvedAt: null,
     publishedAt: null,
   }
   updatePost(newPost)

@@ -34,6 +34,7 @@ const getPost = (status: postStatusType): Post => {
     feedback: '',
     isRecipientWorking: true,
     publishedAt: null,
+    approvedAt: null,
     createdAt: new Date('December 15, 1990 01:23:00'),
   }
 }
