@@ -22,12 +22,14 @@ import {
 import { keyword } from '../../consts/keyword'
 import { phrase } from '../../consts/phrase'
 import { deletePostData, uploadImage } from '../../lib/storage/post'
-import { GetRecipientById, updateRecipient } from '../../lib/firestore/recipient'
+import { updateRecipient } from '../../lib/firestore/recipient'
 import sharp from 'sharp'
 import { Push } from '../../lib/line/line'
 import { getManagers } from '../../lib/firestore/manager'
-import { insertLog, postSummary, recipientSummary } from '../../lib/sheet/log'
 import { action } from '../../consts/log'
+import { getRecipientGroupById } from '../../lib/firestore/recipientGroup'
+import { insertLog } from '../../lib/sheet/log'
+import { postSummary, recipientSummary } from '../../lib/sheet/summary'
 
 export const IMAGE_MAX = 1
 const IMAGE_SIZE = 680
@@ -97,8 +99,9 @@ export const reactPostText = async (
               confirmToApprovePost(recipient.name, post.id),
             ],
           )
-          const groupName = (await GetRecipientById(post.recipientId)).name
-          insertLog(await recipientSummary(recipient), action.SEND_POST, postSummary(post))
+          const groupName = (await getRecipientGroupById(recipient.recipientGroupId)).name
+          recipientSummary(recipient, groupName)
+          insertLog(recipientSummary(recipient, groupName), action.SEND_POST, postSummary(post))
           return [completePost()]
         case keyword.DISCARD:
           recipient.status = recipientStatus.IDLE

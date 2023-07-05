@@ -3,8 +3,10 @@ import { keyword } from '../../consts/keyword'
 import { phrase } from '../../consts/phrase'
 import { newFirestore } from '../../lib/firestore/firestore'
 import { TextTemplate } from '../../lib/line/template'
+import { recipientSummary } from '../../lib/sheet/summary'
 import { Post } from '../../types/post'
 import { Recipient } from '../../types/recipient'
+import { RecipientGroup } from '../../types/recipientGroup'
 import {
   askBody,
   askImage,
@@ -23,6 +25,7 @@ const getPost = (status: postStatusType): Post => {
   return {
     id: 'rg-0001-230428-161200',
     recipientGroupId: 'rg-0001',
+    recipientGroupName: 'recipientGroup',
     recipientId: 'r-0001',
     status: status,
     subject: '',
@@ -31,6 +34,7 @@ const getPost = (status: postStatusType): Post => {
     feedback: '',
     isRecipientWorking: true,
     publishedAt: null,
+    approvedAt: null,
     createdAt: new Date('December 15, 1990 01:23:00'),
   }
 }
@@ -43,6 +47,15 @@ const getRecipient = (): Recipient => {
     name: 'hope',
     status: recipientStatus.INPUT_POST,
     enable: false,
+    createdAt: new Date('December 15, 1990 01:23:00'),
+  }
+}
+
+const getRecipientGroup = (): RecipientGroup => {
+  return {
+    id: 'r-0001',
+    name: 'recipientGroup',
+    enable: true,
     createdAt: new Date('December 15, 1990 01:23:00'),
   }
 }
@@ -64,11 +77,23 @@ jest.mock('../../lib/firestore/recipient', () => ({
   updateRecipient: jest.fn(),
 }))
 
+jest.mock('../../lib/sheet/log', () => ({
+  insertLog: jest.fn(),
+}))
+
+const mockGetRecipientGroup = jest.fn()
+
+jest.mock('../../lib/firestore/recipientGroup', () => ({
+  getRecipientGroupById: () => mockGetRecipientGroup(),
+}))
+
 describe('recipient_handler/post_handler 記事投稿', () => {
   admin.initializeApp()
   newFirestore()
   const managerClient = undefined as any
   const recipient = getRecipient()
+  mockGetRecipientGroup.mockReturnValue(getRecipientGroup())
+  recipientSummary(recipient, 'test')
 
   it(':主題入力', async () => {
     const post = getPost(postStatus.INPUT_SUBJECT)

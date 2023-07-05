@@ -3,6 +3,7 @@ import { DocumentData, QueryDocumentSnapshot } from 'firebase-admin/firestore'
 import { recipientStatus } from '../../consts/constants'
 import { makeId } from '../../utils/random/random'
 import { Recipient } from '../../types/recipient'
+import moment from 'moment'
 
 export const GetRecipientById = async (id: string) => {
   let recipient: Recipient = (
@@ -59,7 +60,7 @@ export const createRecipient = async (lineId: string) => {
     name: '',
     status: recipientStatus.NONE,
     enable: false,
-    createdAt: new Date(),
+    createdAt: moment().utcOffset(9).toDate(),
   }
   updateRecipient(newRecipient)
   console.info(`create new recipient${newRecipient}`)

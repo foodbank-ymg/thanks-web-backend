@@ -16,12 +16,3 @@ export const insertLog = async (user: string, action: string, target: string) =>
   //to add first row
   insertRow(1, [moment().utcOffset(9).format('YYYY/M/DD h:mm:ss'), user, action, target])
 }
-
-export const recipientSummary = async (recipient: Recipient) => {
-  const groupName = (await getRecipientGroupById(recipient.recipientGroupId)).name
-  return `${groupName}_${recipient.name}`
-}
-
-export const postSummary = (post: Post) => {
-  return `${post.id}_${post.subject}`
-}

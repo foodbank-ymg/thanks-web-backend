@@ -26,11 +26,11 @@ const getEvent = (type: string) => {
   } as WebhookEvent
 }
 
-const getRecipient_ = jest.fn()
+const mockGetRecipient = jest.fn()
 
 jest.mock('../../lib/firestore/recipient', () => ({
   updateRecipient: jest.fn(),
-  getRecipientByLineId: () => getRecipient_(),
+  getRecipientByLineId: () => mockGetRecipient(),
 }))
 
 describe('recipient_line/recipient_line フォロー', () => {
@@ -38,7 +38,7 @@ describe('recipient_line/recipient_line フォロー', () => {
   const managerClient = undefined as any
   const recipientClient = undefined as any
   it(':名前入力から再開', async () => {
-    getRecipient_.mockImplementation(() => getRecipient('', '', recipientStatus.NONE))
+    mockGetRecipient.mockImplementation(() => getRecipient('', '', recipientStatus.NONE))
 
     expect(await handleEvent(managerClient, recipientClient, event)).toMatchObject([
       {
@@ -50,7 +50,7 @@ describe('recipient_line/recipient_line フォロー', () => {
   })
 
   it(':団体ID入力から再開', async () => {
-    getRecipient_.mockReturnValue(getRecipient('', '太郎', recipientStatus.NONE))
+    mockGetRecipient.mockReturnValue(getRecipient('', '太郎', recipientStatus.NONE))
 
     expect(await handleEvent(managerClient, recipientClient, event)).toMatchObject([
       {
@@ -62,7 +62,7 @@ describe('recipient_line/recipient_line フォロー', () => {
   })
 
   it(':即復帰', async () => {
-    getRecipient_.mockReturnValue(getRecipient('rg-0001', '太郎', recipientStatus.NONE))
+    mockGetRecipient.mockReturnValue(getRecipient('rg-0001', '太郎', recipientStatus.NONE))
 
     expect(await handleEvent(managerClient, recipientClient, event)).toMatchObject([
       {
