@@ -32,6 +32,9 @@ import { PostbackData } from '../../types/postback'
 import { GetPostById, deletePost, updatePost } from '../../lib/firestore/post'
 import { Push } from '../../lib/line/line'
 import {
+  askPostId,
+  deletePostSuccess,
+  notFoundPost,
   approvedPostForManager,
   approvedPostForRecipient,
   rejectedPostForManager,
@@ -40,7 +43,6 @@ import {
 import { GetRecipientById, updateRecipient } from '../../lib/firestore/recipient'
 import { insertLog } from '../../lib/sheet/log'
 import { action } from '../../consts/log'
-import { askPostId, deletePostSuccess, notFoundPost } from '../manager_line/post'
 import { deletePostData } from '../../lib/storage/post'
 import { postSummary } from '../../lib/sheet/summary'
 import moment from 'moment'
