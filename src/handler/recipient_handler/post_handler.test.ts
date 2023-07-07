@@ -69,7 +69,7 @@ jest.mock('../../lib/firestore/post', () => ({
 }))
 
 jest.mock('../../lib/firestore/manager', () => ({
-  getManagers: jest.fn(() => []),
+  getManagersByStationId: jest.fn(() => []),
 }))
 
 jest.mock('../../lib/line/line', () => ({
