@@ -1,4 +1,3 @@
-
 import {
   askName,
   askNameAgain,
@@ -43,7 +42,7 @@ test('line recipient_line/setup message', async () => {
 
   expect(completeRegister('foo')).toMatchObject({
     type: 'text',
-    text: '登録が完了しました。「foo」さん、ありがとうございました。投稿することができます。',
+    text: '登録が完了しました。「foo」さん、ありがとうございました。\n投稿することができます。',
   })
 
   expect(askRecipientId()).toMatchObject({

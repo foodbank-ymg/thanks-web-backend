@@ -24,6 +24,7 @@ import admin from 'firebase-admin'
 const getPost = (status: postStatusType): Post => {
   return {
     id: 'rg-0001-230428-161200',
+    stationId: 's-0001',
     recipientGroupId: 'rg-0001',
     recipientGroupName: 'recipientGroup',
     recipientId: 'r-0001',
@@ -42,6 +43,7 @@ const getPost = (status: postStatusType): Post => {
 const getRecipient = (): Recipient => {
   return {
     id: 'r-0001',
+    stationId: 's-0001',
     recipientGroupId: 'rg-0001',
     lineId: 'Uada2abc97aaaaae0a223eb4ddcbbbbbb',
     name: 'hope',
@@ -54,6 +56,7 @@ const getRecipient = (): Recipient => {
 const getRecipientGroup = (): RecipientGroup => {
   return {
     id: 'r-0001',
+    stationId: 's-0001',
     name: 'recipientGroup',
     enable: true,
     createdAt: new Date('December 15, 1990 01:23:00'),

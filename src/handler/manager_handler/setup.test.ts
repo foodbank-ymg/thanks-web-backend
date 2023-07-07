@@ -1,6 +1,8 @@
 import {
   askName,
   askNameAgain,
+  askStationId,
+  askStationIdAgain,
   completeRegister,
   confirmName,
   tellWelcome,
@@ -36,6 +38,16 @@ test('line manager_line/setup message', async () => {
   expect(askNameAgain()).toMatchObject({
     type: 'text',
     text: 'もう一度お名前を教えてください。',
+  })
+
+  expect(askStationId()).toMatchObject({
+    type: 'text',
+    text: '事前に伝えられた拠点IDを入力してください。',
+  })
+
+  expect(askStationIdAgain()).toMatchObject({
+    type: 'text',
+    text: '拠点IDが見つかりません。もう一度入力をお願いします。',
   })
 
   expect(completeRegister('foo')).toMatchObject({

@@ -13,7 +13,7 @@ import { phrase } from '../../consts/phrase'
 import {
   createManager,
   getManagerByLineId,
-  getManagers,
+  getManagersByStationId,
   updateManager,
 } from '../../lib/firestore/manager'
 import { QuickReplyTemplate, TextTemplate } from '../../lib/line/template'
@@ -21,6 +21,8 @@ import { Manager } from '../../types/managers'
 import {
   askName,
   askNameAgain,
+  askStationId,
+  askStationIdAgain,
   completeRegister,
   confirmName,
   tellWelcome,
@@ -42,6 +44,7 @@ import { askPostId, deletePostSuccess, notFoundPost } from '../manager_line/post
 import { deletePostData } from '../../lib/storage/post'
 import { postSummary } from '../../lib/sheet/summary'
 import moment from 'moment'
+import { getStationById } from '../../lib/firestore/station'
 
 export class managerLineHandler {
   constructor(private managerClient: Client, private recipientClient: Client) {}
@@ -142,7 +145,7 @@ const reactPostback = async (
       await Push(recipientClient, [recipient.lineId], [approvedPostForRecipient(post.subject)])
       await Push(
         managerClient,
-        (await getManagers()).map((m) => m.lineId),
+        (await getManagersByStationId(manager.stationId)).map((m) => m.lineId),
         [approvedPostForManager(manager.name, post.subject)],
       )
       insertLog(manager.name, action.APPROVE_POST, postSummary(post))
@@ -157,7 +160,7 @@ const reactPostback = async (
       await Push(recipientClient, [recipient.lineId], [rejectedPostForRecipient(post.subject)])
       await Push(
         managerClient,
-        (await getManagers()).map((m) => m.lineId),
+        (await getManagersByStationId(manager.stationId)).map((m) => m.lineId),
         [rejectedPostForManager(manager.name, post.subject)],
       )
       insertLog(manager.name, action.REJECT_POST, postSummary(post))
@@ -194,10 +197,9 @@ const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> 
       case managerStatus.CONFIRM_NAME:
         switch (event.message.text) {
           case keyword.YES:
-            manager.status = managerStatus.IDLE
-            manager.enable = true
+            manager.status = managerStatus.INPUT_STATION_ID
             await updateManager(manager)
-            return [completeRegister(manager.name)]
+            return [askStationId()]
           case keyword.NO:
             manager.status = managerStatus.INPUT_NAME
             manager.name = ''
@@ -205,6 +207,17 @@ const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> 
             return [askNameAgain()]
           default:
             return [TextTemplate(phrase.yesOrNo)]
+        }
+      case managerStatus.INPUT_STATION_ID:
+        const station = await getStationById(event.message.text)
+        if (station === undefined) {
+          return [askStationIdAgain()]
+        } else {
+          manager.stationId = station.id
+          manager.status = managerStatus.IDLE
+          manager.enable = true
+          await updateManager(manager)
+          return [completeRegister(manager.name)]
         }
       case managerStatus.DELETE_POST:
         const post = await GetPostById(event.message.text)
