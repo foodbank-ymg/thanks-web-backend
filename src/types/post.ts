@@ -3,6 +3,7 @@ import { postStatusType } from '../consts/constants'
 export type Post = {
   id: string
   recipientGroupId: string
+  recipientGroupName: string
   recipientId: string
   status: postStatusType
   subject: string
@@ -11,5 +12,6 @@ export type Post = {
   feedback: string
   isRecipientWorking: boolean
   createdAt: Date
+  approvedAt: Date
   publishedAt: Date
 }
