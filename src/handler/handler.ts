@@ -35,7 +35,6 @@ newFirestore()
 newStorage()
 newSheet()
 newGithub()
-deploy()
 
 app.post('/manager-line', managerMiddleware, (req, res) =>
   new managerLineHandler(managerClient, recipientClient).handle(req, res),
