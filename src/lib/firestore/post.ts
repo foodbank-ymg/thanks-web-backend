@@ -43,6 +43,7 @@ const postConverter = {
   toFirestore(post: Post): DocumentData {
     return {
       id: post.id,
+      stationId: post.stationId,
       recipientGroupId: post.recipientGroupId,
       recipientGroupName: post.recipientGroupName,
       recipientId: post.recipientId,
@@ -62,6 +63,7 @@ const postConverter = {
     const data = snapshot.data()!
     return {
       id: data.id,
+      stationId: data.stationId,
       recipientGroupId: data.recipientGroupId,
       recipientGroupName: data.recipientGroupName,
       recipientId: data.recipientId,
@@ -82,6 +84,7 @@ const postConverter = {
 export const createPost = async (recipient: Recipient, groupName: string) => {
   const newPost: Post = {
     id: `${moment().utcOffset(9).format('YYMMDD-hhmmss')}`,
+    stationId: recipient.stationId,
     recipientGroupId: recipient.recipientGroupId,
     recipientGroupName: groupName,
     recipientId: recipient.id,

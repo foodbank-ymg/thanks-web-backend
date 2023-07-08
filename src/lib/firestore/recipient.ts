@@ -30,6 +30,7 @@ const recipientConverter = {
   toFirestore(recipient: Recipient): DocumentData {
     return {
       id: recipient.id,
+      stationId: recipient.stationId,
       recipientGroupId: recipient.recipientGroupId,
       lineId: recipient.lineId,
       name: recipient.name,
@@ -42,6 +43,7 @@ const recipientConverter = {
     const data = snapshot.data()!
     return {
       id: data.id,
+      stationId: data.stationId,
       recipientGroupId: data.recipientGroupId,
       lineId: data.lineId,
       name: data.name,
@@ -55,6 +57,7 @@ const recipientConverter = {
 export const createRecipient = async (lineId: string) => {
   const newRecipient: Recipient = {
     id: `r-${makeId(4)}`,
+    stationId: '',
     recipientGroupId: '',
     lineId: lineId,
     name: '',

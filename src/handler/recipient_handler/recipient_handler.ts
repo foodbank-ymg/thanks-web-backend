@@ -159,6 +159,7 @@ const react = async (
           return [askRecipientIdAgain()]
         } else {
           recipient.recipientGroupId = recipientGroup.id
+          recipient.stationId = recipientGroup.stationId
           recipient.status = recipientStatus.IDLE
           recipient.enable = true
           await updateRecipient(recipient)

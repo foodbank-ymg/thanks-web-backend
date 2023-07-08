@@ -2,6 +2,7 @@ import { postStatusType } from '../consts/constants'
 
 export type Post = {
   id: string
+  stationId: string
   recipientGroupId: string
   recipientGroupName: string
   recipientId: string

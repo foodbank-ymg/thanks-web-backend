@@ -4,12 +4,14 @@ import { Recipient } from '../../types/recipient'
 import { handleEvent } from './recipient_handler'
 
 const getRecipient = (
+  stationId: string,
   recipientGroupId: string,
   name: string,
   status: recipientStatusType,
 ): Recipient => {
   return {
     id: 'r-0001',
+    stationId: stationId,
     recipientGroupId: recipientGroupId,
     lineId: 'Uada2abc97aaaaae0a223eb4ddcbbbbbb',
     name: name,
@@ -38,7 +40,7 @@ describe('recipient_line/recipient_line フォロー', () => {
   const managerClient = undefined as any
   const recipientClient = undefined as any
   it(':名前入力から再開', async () => {
-    mockGetRecipient.mockImplementation(() => getRecipient('', '', recipientStatus.NONE))
+    mockGetRecipient.mockImplementation(() => getRecipient('', '', '', recipientStatus.NONE))
 
     expect(await handleEvent(managerClient, recipientClient, event)).toMatchObject([
       {
@@ -50,7 +52,7 @@ describe('recipient_line/recipient_line フォロー', () => {
   })
 
   it(':団体ID入力から再開', async () => {
-    mockGetRecipient.mockReturnValue(getRecipient('', '太郎', recipientStatus.NONE))
+    mockGetRecipient.mockReturnValue(getRecipient('', '', '太郎', recipientStatus.NONE))
 
     expect(await handleEvent(managerClient, recipientClient, event)).toMatchObject([
       {
@@ -62,7 +64,9 @@ describe('recipient_line/recipient_line フォロー', () => {
   })
 
   it(':即復帰', async () => {
-    mockGetRecipient.mockReturnValue(getRecipient('rg-0001', '太郎', recipientStatus.NONE))
+    mockGetRecipient.mockReturnValue(
+      getRecipient('s-0001', 'rg-0001', '太郎', recipientStatus.NONE),
+    )
 
     expect(await handleEvent(managerClient, recipientClient, event)).toMatchObject([
       {
