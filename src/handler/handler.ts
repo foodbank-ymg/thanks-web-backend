@@ -1,5 +1,5 @@
 import { Client, middleware } from '@line/bot-sdk'
-import express, { Router } from 'express'
+import express from 'express'
 import { loadConfig } from '../config/config'
 import { managerLineHandler } from './manager_handler/manager_handler'
 import { recipientLineHandler } from './recipient_handler/recipient_handler'
@@ -45,13 +45,6 @@ app.post('/recipient-line', recipientMiddleware, (req, res) =>
 )
 
 app.use('/hook', hookMiddleware, new hookHandler(managerClient, recipientClient).handle())
-
-const router = Router()
-
-router.get('/event', (req, res) => {
-  res.send('/evnets/')
-})
-app.use('/test', router)
 
 // TODO: 仕様が固まり次第着手します
 // app.post('/batch', middleware, (req, res) => lineEvent(client, req, res));
