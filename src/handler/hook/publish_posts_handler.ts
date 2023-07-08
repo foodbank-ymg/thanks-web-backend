@@ -19,14 +19,12 @@ export class publishPostsHandler {
     const conf = loadConfig()
 
     posts.forEach((post) => {
-      this.recipientClient.pushMessage(
-        post.recipientId,
+      this.recipientClient.pushMessage(post.recipientId, [
         publishedPost(post.subject, `${conf.frontendUrl}/post/${post.id}`),
-      )
-      this.managerClient.pushMessage(
-        post.approvedBy,
+      ])
+      this.managerClient.pushMessage(post.approvedBy, [
         publishedPost(post.subject, `${conf.frontendUrl}/post/${post.id}`),
-      )
+      ])
       post.publishedAt = moment().utcOffset(9).toDate()
       updatePost(post)
     })

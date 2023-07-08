@@ -9,9 +9,12 @@ export class hookHandler {
   handle() {
     const hooks = Router()
 
-    hooks.post('publish_posts', (req, res) =>
+    hooks.post('/publish_posts', (req, res) =>
       new publishPostsHandler(this.managerClient, this.recipientClient).handle(req, res),
     )
+    hooks.get('test', (req: Request, res: Response) => {
+      res.send('test')
+    })
 
     return hooks
   }
