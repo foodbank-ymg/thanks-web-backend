@@ -24,7 +24,7 @@ export const askNameAgain = () => {
 
 export const completeRegister = (name: string) => {
   return TextTemplate(
-    `登録が完了しました。「${name}」さん、ありがとうございました。投稿することができます。`,
+    `登録が完了しました。「${name}」さん、ありがとうございました。\n投稿することができます。`,
   )
 }
 

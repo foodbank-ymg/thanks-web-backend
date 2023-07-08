@@ -17,6 +17,7 @@ const recipientGroupConverter = {
   toFirestore(recipient: RecipientGroup): DocumentData {
     return {
       id: recipient.id,
+      stationId: recipient.stationId,
       name: recipient.name,
       enable: recipient.enable,
       createdAt: recipient.createdAt,
@@ -26,6 +27,7 @@ const recipientGroupConverter = {
     const data = snapshot.data()!
     return {
       id: data.id,
+      stationId: data.stationId,
       name: data.name,
       enable: data.enable,
       createdAt: data.createdAt.toDate(),

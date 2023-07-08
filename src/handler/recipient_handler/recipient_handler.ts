@@ -57,8 +57,7 @@ export class recipientLineHandler {
 
     //eventの種類によってはreplyを行わない。
     if (event.type === 'message' || event.type === 'follow') {
-      if (messages && messages.length > 0)
-        result = await this.recipientClient.replyMessage(event.replyToken, messages)
+      if (messages) result = await this.recipientClient.replyMessage(event.replyToken, messages)
     }
 
     // すべてが終わり、resultsをBodyとしてhttpの200を返してる
@@ -132,8 +131,6 @@ const react = async (
             }
             await updateRecipient(recipient)
             return [askSubject()]
-          case keyword.DO_NOTHING:
-            return []
           default:
             return [QuickReplyTemplate('こんにちは！何をしますか?', ['記事投稿', '何もしない'])]
         }
@@ -162,6 +159,7 @@ const react = async (
           return [askRecipientIdAgain()]
         } else {
           recipient.recipientGroupId = recipientGroup.id
+          recipient.stationId = recipientGroup.stationId
           recipient.status = recipientStatus.IDLE
           recipient.enable = true
           await updateRecipient(recipient)

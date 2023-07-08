@@ -25,7 +25,7 @@ import { deletePostData, uploadImage } from '../../lib/storage/post'
 import { updateRecipient } from '../../lib/firestore/recipient'
 import sharp from 'sharp'
 import { Push } from '../../lib/line/line'
-import { getManagers } from '../../lib/firestore/manager'
+import { getManagersByStationId } from '../../lib/firestore/manager'
 import { action } from '../../consts/log'
 import { getRecipientGroupById } from '../../lib/firestore/recipientGroup'
 import { insertLog } from '../../lib/sheet/log'
@@ -93,7 +93,7 @@ export const reactPostText = async (
           await updatePost(post)
           await Push(
             managerClient,
-            (await getManagers()).map((m) => m.lineId),
+            (await getManagersByStationId(recipient.stationId)).map((m) => m.lineId),
             [
               previewPost(post.subject, post.body, post.images),
               confirmToApprovePost(recipient.name, post.id),
