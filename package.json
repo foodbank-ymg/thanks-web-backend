@@ -31,6 +31,7 @@
     "googleapis": "^118.0.0",
     "jsonwebtoken": "^9.0.1",
     "moment": "^2.29.4",
+    "request": "^2.88.2",
     "sharp": "^0.32.0",
     "ts-node": "^10.9.1",
     "tslint": "^6.1.3",

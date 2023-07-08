@@ -1,5 +1,6 @@
 import http from 'http'
 import { loadConfig } from '../../config/config'
+var request = require('request')
 
 export var gh: GithubClient | undefined
 
@@ -31,33 +32,30 @@ export class GithubClient {
       ref: branch,
     })
 
-    const options = {
-      hostname: `https://api.github.com`,
-      path: `/repos/${this.username}/${this.repository}/actions/workflows/${yml}/dispatches`,
+    const conf = loadConfig()
+    var options = {
       method: 'POST',
+      url: `https://api.github.com/repos/${this.username}/${this.repository}/actions/workflows/${yml}/dispatches`,
       headers: {
         Accept: 'application/vnd.github.v3+json',
         'Content-Type': 'application/json',
+        Authorization: `token ${conf.githubToken}`,
         'Content-Length': data.length,
-        Authorization: `token ${this.token}`,
+        'User-Agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_8_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/29.0.1521.3 Safari/537.36',
       },
+      body: data,
     }
 
     return new Promise((resolve, reject) => {
-      const req = http.request(options, (res) => {
-        if (res.statusCode && res.statusCode >= 200 && res.statusCode < 300) {
+      request(options, function (error: Error, response: http.IncomingMessage) {
+        if (error) reject(error)
+        if (response.statusCode && response.statusCode >= 200 && response.statusCode < 300) {
           resolve()
         } else {
-          reject(new Error(`Request failed with status code ${res.statusCode}`))
+          reject(new Error(`Request failed with status code ${response.statusCode}`))
         }
       })
-
-      req.on('error', (error) => {
-        reject(error)
-      })
-
-      req.write(data)
-      req.end()
     })
   }
 }
