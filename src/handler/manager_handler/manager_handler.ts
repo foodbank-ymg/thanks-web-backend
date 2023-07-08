@@ -30,6 +30,9 @@ import { PostbackData } from '../../types/postback'
 import { GetPostById, deletePost, updatePost } from '../../lib/firestore/post'
 import { Push } from '../../lib/line/line'
 import {
+  askPostId,
+  deletePostSuccess,
+  notFoundPost,
   approvedPostForManager,
   approvedPostForRecipient,
   rejectedPostForManager,
@@ -38,10 +41,10 @@ import {
 import { GetRecipientById, updateRecipient } from '../../lib/firestore/recipient'
 import { insertLog } from '../../lib/sheet/log'
 import { action } from '../../consts/log'
-import { askPostId, deletePostSuccess, notFoundPost } from '../manager_line/post'
 import { deletePostData } from '../../lib/storage/post'
 import { postSummary } from '../../lib/sheet/summary'
 import moment from 'moment'
+import { deploy } from '../../lib/github/github'
 
 export class managerLineHandler {
   constructor(private managerClient: Client, private recipientClient: Client) {}
@@ -135,6 +138,7 @@ const reactPostback = async (
       if (post.status != postStatus.WAITING_REVIEW) return []
       post.status = postStatus.APPROVED
       post.isRecipientWorking = false
+      post.approvedBy = manager.id
       post.approvedAt = moment().utcOffset(9).toDate()
       await updatePost(post)
       recipient.status = recipientStatus.IDLE
@@ -145,6 +149,7 @@ const reactPostback = async (
         (await getManagers()).map((m) => m.lineId),
         [approvedPostForManager(manager.name, post.subject)],
       )
+      await deploy()
       insertLog(manager.name, action.APPROVE_POST, postSummary(post))
       break
     case keyword.REJECT:
@@ -215,6 +220,7 @@ const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> 
         } else {
           await deletePost(post)
           deletePostData(post).catch((err) => console.error(err))
+          await deploy()
           insertLog(manager.name, action.DELETE_POST, postSummary(post))
           return [deletePostSuccess(post.subject)]
         }

@@ -7,6 +7,8 @@ import { newFirestore } from '../lib/firestore/firestore'
 import { newStorage } from '../lib/storage/storage'
 import admin from 'firebase-admin'
 import { newSheet } from '../lib/sheet/sheet'
+import { hookMiddleware } from './hook/hook_middleware'
+import { hookHandler } from './hook/hook_handler'
 
 export const app = express()
 
@@ -39,6 +41,8 @@ app.post('/manager-line', managerMiddleware, (req, res) =>
 app.post('/recipient-line', recipientMiddleware, (req, res) =>
   new recipientLineHandler(managerClient, recipientClient).handle(req, res),
 )
+
+app.use('/hook', hookMiddleware, new hookHandler(managerClient, recipientClient).handle())
 
 // TODO: 仕様が固まり次第着手します
 // app.post('/batch', middleware, (req, res) => lineEvent(client, req, res));

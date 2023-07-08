@@ -28,6 +28,17 @@ export const getWorkingPostByRecipientId = async (id: string) => {
   return post as Post | undefined
 }
 
+export const getJustPublishedPosts = async () => {
+  return (
+    await db
+      .collection('posts')
+      .where('status', '==', postStatus.APPROVED)
+      .where('publishedAt', '==', null)
+      .withConverter<Post>(postConverter)
+      .get()
+  ).docs.map((doc) => doc.data())
+}
+
 const postConverter = {
   toFirestore(post: Post): DocumentData {
     return {
@@ -41,6 +52,7 @@ const postConverter = {
       images: post.images,
       feedback: post.feedback,
       isRecipientWorking: post.isRecipientWorking,
+      approvedBy: post.approvedBy,
       createdAt: post.createdAt,
       approvedAt: post.approvedAt,
       publishedAt: post.publishedAt,
@@ -59,6 +71,7 @@ const postConverter = {
       images: data.images,
       feedback: data.feedback,
       isRecipientWorking: data.isRecipientWorking,
+      approvedBy: data.approvedBy,
       createdAt: data.createdAt.toDate(),
       approvedAt: data.approvedAt ? data.approvedAt.toDate() : null,
       publishedAt: data.publishedAt ? data.publishedAt.toDate() : null,
@@ -78,6 +91,7 @@ export const createPost = async (recipient: Recipient, groupName: string) => {
     images: [],
     feedback: '',
     isRecipientWorking: true,
+    approvedBy: '',
     createdAt: moment().utcOffset(9).toDate(),
     approvedAt: null,
     publishedAt: null,

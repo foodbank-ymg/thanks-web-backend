@@ -17,3 +17,15 @@ export const approvedPostForManager = (name: string, subject: string) => {
 export const rejectedPostForManager = (name: string, subject: string) => {
   return TextTemplate(`「${name}」さんが、「${subject}」の投稿を拒否しました。`)
 }
+
+export const askPostId = () => {
+  return TextTemplate('記事IDを入力してください。')
+}
+
+export const deletePostSuccess = (subject: string) => {
+  return TextTemplate(`「${subject}」の投稿を削除しました。`)
+}
+
+export const notFoundPost = () => {
+  return TextTemplate('記事が見つかりませんでした。')
+}
