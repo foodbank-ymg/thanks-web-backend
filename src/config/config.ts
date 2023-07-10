@@ -5,6 +5,13 @@ export type Config = {
   managerLineAccessToken: string
   recipientLineSecret: string
   recipientLineAccessToken: string
+  githubUsername: string
+  githubRepository: string
+  githubYaml: string
+  githubBranch: string
+  githubToken: string
+  accessToken: string
+  frontendUrl: string
 }
 
 var config: Config | undefined
@@ -22,6 +29,13 @@ export const loadConfig = (): Config => {
       managerLineAccessToken: process.env.MANAGER_LINE_TOKEN,
       recipientLineSecret: process.env.RECIPIENT_LINE_SECRET,
       recipientLineAccessToken: process.env.RECIPIENT_LINE_TOKEN,
+      githubUsername: process.env.GITHUB_USERNAME,
+      githubRepository: process.env.GITHUB_REPOSITORY,
+      githubYaml: process.env.GITHUB_YAML,
+      githubBranch: process.env.GITHUB_BRANCH,
+      githubToken: process.env.GITHUB_TOKEN,
+      accessToken: process.env.ACCESS_TOKEN,
+      frontendUrl: process.env.FRONTEND_URL,
     }
   }
 

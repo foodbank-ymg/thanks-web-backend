@@ -34,6 +34,7 @@ const getPost = (status: postStatusType): Post => {
     images: [],
     feedback: '',
     isRecipientWorking: true,
+    approvedBy: 'm-0001',
     publishedAt: null,
     approvedAt: null,
     createdAt: new Date('December 15, 1990 01:23:00'),

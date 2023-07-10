@@ -46,6 +46,7 @@ import { action } from '../../consts/log'
 import { deletePostData } from '../../lib/storage/post'
 import { postSummary } from '../../lib/sheet/summary'
 import moment from 'moment'
+import { deploy } from '../../lib/github/github'
 import { getStationById } from '../../lib/firestore/station'
 
 export class managerLineHandler {
@@ -140,6 +141,7 @@ const reactPostback = async (
       if (post.status != postStatus.WAITING_REVIEW) return []
       post.status = postStatus.APPROVED
       post.isRecipientWorking = false
+      post.approvedBy = manager.id
       post.approvedAt = moment().utcOffset(9).toDate()
       await updatePost(post)
       recipient.status = recipientStatus.IDLE
@@ -150,6 +152,7 @@ const reactPostback = async (
         (await getManagersByStationId(manager.stationId)).map((m) => m.lineId),
         [approvedPostForManager(manager.name, post.subject)],
       )
+      await deploy()
       insertLog(manager.name, action.APPROVE_POST, postSummary(post))
       break
     case keyword.REJECT:
@@ -230,6 +233,7 @@ const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> 
         } else {
           await deletePost(post)
           deletePostData(post).catch((err) => console.error(err))
+          await deploy()
           insertLog(manager.name, action.DELETE_POST, postSummary(post))
           return [deletePostSuccess(post.subject)]
         }
