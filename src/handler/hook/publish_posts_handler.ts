@@ -4,6 +4,7 @@ import { getJustPublishedPosts, updatePost } from '../../lib/firestore/post'
 import { publishedPost } from './post'
 import { loadConfig } from '../../config/config'
 import moment from 'moment'
+import { GetRecipientById } from '../../lib/firestore/recipient'
 
 export class publishPostsHandler {
   constructor(private managerClient: Client, private recipientClient: Client) {}
@@ -18,11 +19,13 @@ export class publishPostsHandler {
 
     const conf = loadConfig()
 
-    posts.forEach((post) => {
-      this.recipientClient.pushMessage(post.recipientId, [
+    posts.forEach(async (post) => {
+      let recipientLine = (await GetRecipientById(post.recipientId)).lineId
+      let managerLine = (await GetRecipientById(post.approvedBy)).lineId
+      this.recipientClient.pushMessage(recipientLine, [
         publishedPost(post.subject, `${conf.frontendUrl}/post/${post.id}`),
       ])
-      this.managerClient.pushMessage(post.approvedBy, [
+      this.managerClient.pushMessage(managerLine, [
         publishedPost(post.subject, `${conf.frontendUrl}/post/${post.id}`),
       ])
       post.publishedAt = moment().utcOffset(9).toDate()
