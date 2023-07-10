@@ -10,7 +10,7 @@ export type Config = {
   githubYaml: string
   githubBranch: string
   githubToken: string
-  accessToken: string
+  jwtSecret: string
   frontendUrl: string
 }
 
@@ -34,7 +34,7 @@ export const loadConfig = (): Config => {
       githubYaml: process.env.GITHUB_YAML,
       githubBranch: process.env.GITHUB_BRANCH,
       githubToken: process.env.GITHUB_TOKEN,
-      accessToken: process.env.ACCESS_TOKEN,
+      jwtSecret: process.env.JWT_SECRET,
       frontendUrl: process.env.FRONTEND_URL,
     }
   }

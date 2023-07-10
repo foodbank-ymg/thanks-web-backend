@@ -5,6 +5,7 @@ import { publishedPost } from './post'
 import { loadConfig } from '../../config/config'
 import moment from 'moment'
 import { GetRecipientById } from '../../lib/firestore/recipient'
+import { GetManagerById, getManagerByLineId } from '../../lib/firestore/manager'
 
 export class publishPostsHandler {
   constructor(private managerClient: Client, private recipientClient: Client) {}
@@ -21,7 +22,7 @@ export class publishPostsHandler {
 
     posts.forEach(async (post) => {
       let recipientLine = (await GetRecipientById(post.recipientId)).lineId
-      let managerLine = (await GetRecipientById(post.approvedBy)).lineId
+      let managerLine = (await GetManagerById(post.approvedBy)).lineId
       this.recipientClient.pushMessage(recipientLine, [
         publishedPost(post.subject, `${conf.frontendUrl}/post/${post.id}`),
       ])
