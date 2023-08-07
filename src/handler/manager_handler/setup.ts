@@ -22,6 +22,14 @@ export const askNameAgain = () => {
   return TextTemplate('もう一度お名前を教えてください。')
 }
 
+export const askStationId = () => {
+  return TextTemplate('事前に伝えられた拠点IDを入力してください。')
+}
+
+export const askStationIdAgain = () => {
+  return TextTemplate('拠点IDが見つかりません。もう一度入力をお願いします。')
+}
+
 export const completeRegister = (name: string) => {
   return TextTemplate(
     `登録が完了しました。「${name}」さん、ありがとうございました。投稿された記事の管理をすることができます。`,

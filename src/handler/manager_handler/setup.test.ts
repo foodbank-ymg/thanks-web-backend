@@ -1,18 +1,18 @@
 import {
   askName,
   askNameAgain,
+  askStationId,
+  askStationIdAgain,
   completeRegister,
   confirmName,
   tellWelcome,
   tellWelcomeBack,
-  askRecipientId,
-  askRecipientIdAgain,
 } from './setup'
 
-test('line recipient_line/setup message', async () => {
+test('line manager_line/setup message', async () => {
   expect(tellWelcome()).toMatchObject({
     type: 'text',
-    text: '友だち追加ありがとうございます。\nこのアカウントでは、文章や画像をチャット送っていただくだけで記事投稿が出来ます。',
+    text: '友だち追加ありがとうございます。\nこのアカウントでは、投稿された記事の管理ができます。',
   })
   expect(askName()).toMatchObject({
     type: 'text',
@@ -40,17 +40,18 @@ test('line recipient_line/setup message', async () => {
     text: 'もう一度お名前を教えてください。',
   })
 
-  expect(completeRegister('foo')).toMatchObject({
+  expect(askStationId()).toMatchObject({
     type: 'text',
-    text: '登録が完了しました。「foo」さん、ありがとうございました。投稿することができます。',
+    text: '事前に伝えられた拠点IDを入力してください。',
   })
 
-  expect(askRecipientId()).toMatchObject({
+  expect(askStationIdAgain()).toMatchObject({
     type: 'text',
-    text: 'フードバンク山口から払い出された団体IDを入力してください。',
+    text: '拠点IDが見つかりません。もう一度入力をお願いします。',
   })
-  expect(askRecipientIdAgain()).toMatchObject({
+
+  expect(completeRegister('foo')).toMatchObject({
     type: 'text',
-    text: '団体IDが見つかりません。もう一度入力をお願いします。',
+    text: '登録が完了しました。「foo」さん、ありがとうございました。投稿された記事の管理をすることができます。',
   })
 })

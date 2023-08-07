@@ -7,5 +7,6 @@
     "sourceMap": true,
     "outDir": "dist"
   },
+  "types": ["babel-core"],
   "lib": ["es2015"]
 }

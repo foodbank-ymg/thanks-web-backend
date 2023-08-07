@@ -1,16 +1,17 @@
 import { WebhookEvent } from '@line/bot-sdk'
 import { recipientStatus, recipientStatusType } from '../../consts/constants'
-import { getRecipientByLineId } from '../../lib/firestore/recipient'
 import { Recipient } from '../../types/recipient'
-import { handleEvent } from './recipient_line'
+import { handleEvent } from './recipient_handler'
 
 const getRecipient = (
+  stationId: string,
   recipientGroupId: string,
   name: string,
   status: recipientStatusType,
 ): Recipient => {
   return {
     id: 'r-0001',
+    stationId: stationId,
     recipientGroupId: recipientGroupId,
     lineId: 'Uada2abc97aaaaae0a223eb4ddcbbbbbb',
     name: name,
@@ -27,19 +28,21 @@ const getEvent = (type: string) => {
   } as WebhookEvent
 }
 
-const getRecipient_ = jest.fn()
+const mockGetRecipient = jest.fn()
 
 jest.mock('../../lib/firestore/recipient', () => ({
   updateRecipient: jest.fn(),
-  getRecipientByLineId: () => getRecipient_(),
+  getRecipientByLineId: () => mockGetRecipient(),
 }))
 
 describe('recipient_line/recipient_line フォロー', () => {
   const event = getEvent('follow')
+  const managerClient = undefined as any
+  const recipientClient = undefined as any
   it(':名前入力から再開', async () => {
-    getRecipient_.mockImplementation(() => getRecipient('', '', recipientStatus.NONE))
+    mockGetRecipient.mockImplementation(() => getRecipient('', '', '', recipientStatus.NONE))
 
-    expect(await handleEvent(event)).toMatchObject([
+    expect(await handleEvent(managerClient, recipientClient, event)).toMatchObject([
       {
         type: 'text',
         text: '友だち追加ありがとうございます。\nこのアカウントでは、文章や画像をチャット送っていただくだけで記事投稿が出来ます。',
@@ -49,9 +52,9 @@ describe('recipient_line/recipient_line フォロー', () => {
   })
 
   it(':団体ID入力から再開', async () => {
-    getRecipient_.mockReturnValue(getRecipient('', '太郎', recipientStatus.NONE))
+    mockGetRecipient.mockReturnValue(getRecipient('', '', '太郎', recipientStatus.NONE))
 
-    expect(await handleEvent(event)).toMatchObject([
+    expect(await handleEvent(managerClient, recipientClient, event)).toMatchObject([
       {
         type: 'text',
         text: '友だち追加ありがとうございます。\nこのアカウントでは、文章や画像をチャット送っていただくだけで記事投稿が出来ます。',
@@ -61,9 +64,11 @@ describe('recipient_line/recipient_line フォロー', () => {
   })
 
   it(':即復帰', async () => {
-    getRecipient_.mockReturnValue(getRecipient('rg-0001', '太郎', recipientStatus.NONE))
+    mockGetRecipient.mockReturnValue(
+      getRecipient('s-0001', 'rg-0001', '太郎', recipientStatus.NONE),
+    )
 
-    expect(await handleEvent(event)).toMatchObject([
+    expect(await handleEvent(managerClient, recipientClient, event)).toMatchObject([
       {
         text: '「太郎」さん、おかえりなさい。',
         type: 'text',

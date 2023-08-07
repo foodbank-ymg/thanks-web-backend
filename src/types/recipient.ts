@@ -1,7 +1,8 @@
 import { recipientStatusType } from '../consts/constants'
 
-type Recipient = {
+export type Recipient = {
   id: string
+  stationId: string
   recipientGroupId: string
   lineId: string
   name: string
