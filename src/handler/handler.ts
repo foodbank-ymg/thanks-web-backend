@@ -11,6 +11,7 @@ import { hookMiddleware } from './hook/hook_middleware'
 import { hookHandler } from './hook/hook_handler'
 import { deploy, newGithub } from '../lib/github/github'
 import { publishedPost } from './hook/post'
+import { getJustPublishedPosts } from '../lib/firestore/post'
 
 export const app = express()
 
@@ -36,6 +37,7 @@ newFirestore()
 newStorage()
 newSheet()
 newGithub()
+
 
 app.post('/manager-line', managerMiddleware, (req, res) =>
   new managerLineHandler(managerClient, recipientClient).handle(req, res),

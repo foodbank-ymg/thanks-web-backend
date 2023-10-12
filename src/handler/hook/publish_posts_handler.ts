@@ -17,6 +17,7 @@ export class publishPostsHandler {
         status: 'new post not found',
       })
     }
+    console.log(posts)
 
     const conf = loadConfig()
     posts.forEach(async (post) => {
