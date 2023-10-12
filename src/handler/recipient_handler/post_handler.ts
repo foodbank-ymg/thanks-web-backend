@@ -90,6 +90,7 @@ export const reactPostText = async (
       switch (text) {
         case keyword.DECIDE:
           post.status = postStatus.WAITING_REVIEW
+
           await updatePost(post)
           await Push(
             managerClient,

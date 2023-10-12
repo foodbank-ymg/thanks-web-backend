@@ -19,7 +19,6 @@ export class publishPostsHandler {
     }
 
     const conf = loadConfig()
-
     posts.forEach(async (post) => {
       let recipientLine = (await GetRecipientById(post.recipientId)).lineId
       let managerLine = (await GetManagerById(post.approvedBy)).lineId

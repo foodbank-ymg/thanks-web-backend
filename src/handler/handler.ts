@@ -10,6 +10,7 @@ import { newSheet } from '../lib/sheet/sheet'
 import { hookMiddleware } from './hook/hook_middleware'
 import { hookHandler } from './hook/hook_handler'
 import { deploy, newGithub } from '../lib/github/github'
+import { publishedPost } from './hook/post'
 
 export const app = express()
 

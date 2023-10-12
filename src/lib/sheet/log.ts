@@ -1,7 +1,4 @@
 import moment from 'moment'
-import { Post } from '../../types/post'
-import { Recipient } from '../../types/recipient'
-import { getRecipientGroupById } from '../firestore/recipientGroup'
 import { insertRow } from './insert'
 
 export const insertLog = async (user: string, action: string, target: string) => {
