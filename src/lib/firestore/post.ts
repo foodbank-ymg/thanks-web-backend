@@ -39,20 +39,8 @@ export const getJustPublishedPosts = async () => {
       .withConverter<Post>(postConverter)
       .get()
   ).docs.map((doc) => doc.data())
-  const conf = loadConfig()
-  let filteredPost = []
-  await Promise.all(
-    posts.map(async (post) => {
-      let res
-      try {
-        res = await axios.get(`${conf.frontendUrl}/post/${post.id}`)
-        if (res.status === 200) {
-          filteredPost.push(post)
-        }
-      } catch (e) {}
-    }),
-  )
-  return filteredPost
+
+  return posts
 }
 
 const postConverter = {

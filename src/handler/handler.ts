@@ -9,9 +9,7 @@ import admin from 'firebase-admin'
 import { newSheet } from '../lib/sheet/sheet'
 import { hookMiddleware } from './hook/hook_middleware'
 import { hookHandler } from './hook/hook_handler'
-import { deploy, newGithub } from '../lib/github/github'
-import { publishedPost } from './hook/post'
-import { getJustPublishedPosts } from '../lib/firestore/post'
+import { newGithub } from '../lib/github/github'
 
 export const app = express()
 
