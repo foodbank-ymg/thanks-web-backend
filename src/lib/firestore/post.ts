@@ -5,6 +5,8 @@ import { Recipient } from '../../types/recipient'
 import { Post } from '../../types/post'
 import moment from 'moment'
 import { getRecipientGroupById } from './recipientGroup'
+import axios from 'axios'
+import { loadConfig } from '../../config/config'
 
 export const GetPostById = async (id: string) => {
   let post: Post = (
@@ -29,7 +31,7 @@ export const getWorkingPostByRecipientId = async (id: string) => {
 }
 
 export const getJustPublishedPosts = async () => {
-  return (
+  let posts = (
     await db
       .collection('posts')
       .where('status', '==', postStatus.APPROVED)
@@ -37,6 +39,8 @@ export const getJustPublishedPosts = async () => {
       .withConverter<Post>(postConverter)
       .get()
   ).docs.map((doc) => doc.data())
+
+  return posts
 }
 
 const postConverter = {

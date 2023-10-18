@@ -9,7 +9,7 @@ import admin from 'firebase-admin'
 import { newSheet } from '../lib/sheet/sheet'
 import { hookMiddleware } from './hook/hook_middleware'
 import { hookHandler } from './hook/hook_handler'
-import { deploy, newGithub } from '../lib/github/github'
+import { newGithub } from '../lib/github/github'
 
 export const app = express()
 
@@ -35,6 +35,7 @@ newFirestore()
 newStorage()
 newSheet()
 newGithub()
+
 
 app.post('/manager-line', managerMiddleware, (req, res) =>
   new managerLineHandler(managerClient, recipientClient).handle(req, res),

@@ -2,6 +2,7 @@ on:
   push:
     branches:
       - develop
+      - feature/check-exist
 
 name: Build and Deploy to Cloud Run on merge to branch 'develop'
 env:
