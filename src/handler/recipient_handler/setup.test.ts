@@ -12,7 +12,7 @@ import {
 test('line recipient_line/setup message', async () => {
   expect(tellWelcome()).toMatchObject({
     type: 'text',
-    text: '友だち追加ありがとうございます。\nこのアカウントでは、文章や画像をチャット送っていただくだけで記事投稿が出来ます。',
+    text: '友だち追加ありがとうございます。\nフードバンク山口「ありがとうWebサイト」のLINEアカウントです。フードバンク山口に食料を寄贈してくださる個人や企業、そして日々の運営を支えてくださるボランティアさんに感謝の気持ちをおたよりとして届けることができます。ぜひご活用ください。',
   })
   expect(askName()).toMatchObject({
     type: 'text',
@@ -21,7 +21,7 @@ test('line recipient_line/setup message', async () => {
 
   expect(tellWelcomeBack('name')).toMatchObject({
     type: 'text',
-    text: '「name」さん、おかえりなさい。',
+    text: 'nameさん、おかえりなさい。',
   })
   expect(confirmName('hoge')).toMatchObject({
     type: 'template',
@@ -42,7 +42,7 @@ test('line recipient_line/setup message', async () => {
 
   expect(completeRegister('foo')).toMatchObject({
     type: 'text',
-    text: '登録が完了しました。「foo」さん、ありがとうございました。\n投稿することができます。',
+    text: 'fooさんの登録が完了しました。ありがとうございました。\n「ねぇ」「こんにちは」などなんでも話しかけてください。おたよりの投稿を始めることができます。',
   })
 
   expect(askRecipientId()).toMatchObject({

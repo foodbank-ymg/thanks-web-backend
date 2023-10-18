@@ -4,7 +4,6 @@ import { postStatus } from '../../consts/constants'
 import { Recipient } from '../../types/recipient'
 import { Post } from '../../types/post'
 import moment from 'moment'
-import { getRecipientGroupById } from './recipientGroup'
 
 export const GetPostById = async (id: string) => {
   let post: Post = (
@@ -29,7 +28,7 @@ export const getWorkingPostByRecipientId = async (id: string) => {
 }
 
 export const getJustPublishedPosts = async () => {
-  return (
+  let posts = (
     await db
       .collection('posts')
       .where('status', '==', postStatus.APPROVED)
@@ -37,6 +36,8 @@ export const getJustPublishedPosts = async () => {
       .withConverter<Post>(postConverter)
       .get()
   ).docs.map((doc) => doc.data())
+
+  return posts
 }
 
 const postConverter = {
@@ -88,7 +89,7 @@ export const createPost = async (recipient: Recipient, groupName: string) => {
     recipientGroupId: recipient.recipientGroupId,
     recipientGroupName: groupName,
     recipientId: recipient.id,
-    status: postStatus.INPUT_SUBJECT,
+    status: postStatus.INPUT_IMAGE,
     subject: '',
     body: '',
     images: [],

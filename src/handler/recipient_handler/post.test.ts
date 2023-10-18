@@ -23,50 +23,66 @@ import {
   discardPost,
   previewPost,
 } from './post'
-import { IMAGE_MAX } from './post_handler'
 
 test(`line recipient_line/post message`, async () => {
-  expect(askSubject()).toMatchObject(TextTemplate(`まず、主題を入力してください。`))
-  expect(confirmSubject(`タイトル`)).toMatchObject(
-    ConfirmTemplate(`主題は「タイトル」でよろしいですか？`, `主題確認`),
-  )
-
-  expect(askSubjectAgain()).toMatchObject(TextTemplate(`もう一度、主題を入力してください。`))
-  expect(askBody()).toMatchObject(TextTemplate(`次に、本文を入力してください。`))
-  expect(confirmBody(`本文`)).toMatchObject(
-    ConfirmTemplate(`本文は「本文」でよろしいですか？`, `本文確認`),
-  )
-
-  expect(askBodyAgain()).toMatchObject(TextTemplate(`もう一度、本文を入力してください。`))
-
   expect(askImage()).toMatchObject(
-    TextTemplate(`次に、画像を一枚づつ送信してください。${IMAGE_MAX}枚まで追加できます。`),
+    TextTemplate(
+      `おたよりに掲載する写真を送信してください。食材を調理したもの、食事の様子または関連する出来事の写真をお願いします。`,
+    ),
   )
   expect(confirmImage(2)).toMatchObject(
     TextTemplate(
-      `2枚受け取りました。まだ画像を追加できます。\n全て投稿したら、「${keyword.FINISH_IMAGE}」を押してください。`,
+      `写真を2枚受け取りました。まだ追加できます。全て送信したら、「${keyword.FINISH_IMAGE}」を押してください。`,
     ),
   )
+
+  expect(askSubject()).toMatchObject(
+    TextTemplate(
+      `この写真に添えるタイトルを一言ください。写真と一緒におたより一覧に表示されます。（例：楽しいクリスマス/イベントでお菓子配布）`,
+    ),
+  )
+  expect(confirmSubject(`タイトル`)).toMatchObject(
+    ConfirmTemplate(`タイトルは「タイトル」でいいですか？`, `主題確認`),
+  )
+
+  expect(askSubjectAgain()).toMatchObject(
+    TextTemplate(`それではもう一度タイトルを入力してください。`),
+  )
+  expect(askBody()).toMatchObject(
+    TextTemplate(
+      `最後におたよりの本文として、食材を得てから生まれたストーリーや様子、または寄贈者へのメッセージを送信してください。この文章はおたよりの詳細ページになります。100文字以上ぐらいあると望ましいですが、短い文章でも大丈夫です。`,
+    ),
+  )
+  expect(confirmBody(`本文`)).toMatchObject(
+    ConfirmTemplate(`本文は「本文」でいいですか？`, `本文確認`),
+  )
+
+  expect(askBodyAgain()).toMatchObject(
+    TextTemplate(`お手数ですが、もう一度、本文を入力してください。`),
+  )
+
   expect(confirmPost()).toMatchObject(
     ConfirmTemplate(
-      `全ての記入が完了しました。\n投稿内容に間違いがないか、最後にもう一度ご確認ください。`,
+      `上記がおたよりのプレビューです。不備や間違いがないか確認して「決定」を押してください。`,
       `投稿確認`,
       [keyword.DECIDE, keyword.DISCARD],
     ),
   )
   expect(completePost()).toMatchObject(
-    TextTemplate(`記事の送信が完了しました。事務局が投稿内容を承認後、サイトに反映されます。`),
+    TextTemplate(
+      `おたよりの送信が完了しました。フードバンク事務局が内容を承認後、Webサイトに反映されます。少々お待ちください。`,
+    ),
   )
   expect(discardPost()).toMatchObject(
     TextTemplate(
-      `記事の下書きを削除しました。もう一度投稿する場合は「記事投稿」と話しかけてください。`,
+      `おたよりの下書きを削除しました。もう一度始める場合は「おたより投稿」と話しかけてください。`,
     ),
   )
   let conf = loadConfig()
 
   expect(confirmToApprovePost('hoge', 'rg-0001-230428-161200')).toMatchObject(
     ConfirmTemplatePostback(
-      `「hoge」さんが新しい記事を投稿しました。ご確認ください。`,
+      `「hoge」さんが新しいおたよりを投稿しました。ご確認ください。`,
       `投稿承認`,
       [
         NewPostbackAction(
@@ -134,5 +150,7 @@ test(`line recipient_line/post message`, async () => {
 })
 
 expect(cannotPost(`hoge`)).toMatchObject(
-  TextTemplate(`以前投稿された「hoge」が承認待ちのため、投稿できません。`),
+  TextTemplate(
+    `以前投稿された「hoge」が承認待ちのため、次のおたより投稿を始めることができません。`,
+  ),
 )

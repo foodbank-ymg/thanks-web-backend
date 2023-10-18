@@ -45,7 +45,7 @@ describe('recipient_line/recipient_line フォロー', () => {
     expect(await handleEvent(managerClient, recipientClient, event)).toMatchObject([
       {
         type: 'text',
-        text: '友だち追加ありがとうございます。\nこのアカウントでは、文章や画像をチャット送っていただくだけで記事投稿が出来ます。',
+        text: '友だち追加ありがとうございます。\nフードバンク山口「ありがとうWebサイト」のLINEアカウントです。フードバンク山口に食料を寄贈してくださる個人や企業、そして日々の運営を支えてくださるボランティアさんに感謝の気持ちをおたよりとして届けることができます。ぜひご活用ください。',
       },
       { text: 'まず、お名前を教えてください。（サイトには公開されません）', type: 'text' },
     ])
@@ -57,7 +57,7 @@ describe('recipient_line/recipient_line フォロー', () => {
     expect(await handleEvent(managerClient, recipientClient, event)).toMatchObject([
       {
         type: 'text',
-        text: '友だち追加ありがとうございます。\nこのアカウントでは、文章や画像をチャット送っていただくだけで記事投稿が出来ます。',
+        text: '友だち追加ありがとうございます。\nフードバンク山口「ありがとうWebサイト」のLINEアカウントです。フードバンク山口に食料を寄贈してくださる個人や企業、そして日々の運営を支えてくださるボランティアさんに感謝の気持ちをおたよりとして届けることができます。ぜひご活用ください。',
       },
       { text: 'フードバンク山口から払い出された団体IDを入力してください。', type: 'text' },
     ])
@@ -70,7 +70,7 @@ describe('recipient_line/recipient_line フォロー', () => {
 
     expect(await handleEvent(managerClient, recipientClient, event)).toMatchObject([
       {
-        text: '「太郎」さん、おかえりなさい。',
+        text: '太郎さん、おかえりなさい。',
         type: 'text',
       },
     ])

@@ -2,7 +2,7 @@ import { ConfirmTemplate, TextTemplate } from '../../lib/line/template'
 
 export const tellWelcome = () => {
   return TextTemplate(
-    `友だち追加ありがとうございます。\nこのアカウントでは、文章や画像をチャット送っていただくだけで記事投稿が出来ます。`,
+    `友だち追加ありがとうございます。\nフードバンク山口「ありがとうWebサイト」のLINEアカウントです。フードバンク山口に食料を寄贈してくださる個人や企業、そして日々の運営を支えてくださるボランティアさんに感謝の気持ちをおたよりとして届けることができます。ぜひご活用ください。`,
   )
 }
 
@@ -11,7 +11,7 @@ export const askName = () => {
 }
 
 export const tellWelcomeBack = (name: string) => {
-  return TextTemplate(`「${name}」さん、おかえりなさい。`)
+  return TextTemplate(`${name}さん、おかえりなさい。`)
 }
 
 export const confirmName = (name: string) => {
@@ -24,7 +24,7 @@ export const askNameAgain = () => {
 
 export const completeRegister = (name: string) => {
   return TextTemplate(
-    `登録が完了しました。「${name}」さん、ありがとうございました。\n投稿することができます。`,
+    `${name}さんの登録が完了しました。ありがとうございました。\n「ねぇ」「こんにちは」などなんでも話しかけてください。おたよりの投稿を始めることができます。`,
   )
 }
 
