@@ -4,9 +4,6 @@ import { postStatus } from '../../consts/constants'
 import { Recipient } from '../../types/recipient'
 import { Post } from '../../types/post'
 import moment from 'moment'
-import { getRecipientGroupById } from './recipientGroup'
-import axios from 'axios'
-import { loadConfig } from '../../config/config'
 
 export const GetPostById = async (id: string) => {
   let post: Post = (
@@ -92,7 +89,7 @@ export const createPost = async (recipient: Recipient, groupName: string) => {
     recipientGroupId: recipient.recipientGroupId,
     recipientGroupName: groupName,
     recipientId: recipient.id,
-    status: postStatus.INPUT_SUBJECT,
+    status: postStatus.INPUT_IMAGE,
     subject: '',
     body: '',
     images: [],
