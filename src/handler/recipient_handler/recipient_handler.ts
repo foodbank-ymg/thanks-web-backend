@@ -23,7 +23,7 @@ import {
 } from './setup'
 import { reactPostImage, reactPostText } from './post_handler'
 import { createPost, getWorkingPostByRecipientId } from '../../lib/firestore/post'
-import { askSubject } from './post'
+import { askImage } from './post'
 import { Post } from '../../types/post'
 
 export class recipientLineHandler {
@@ -130,11 +130,11 @@ const react = async (
               post = await createPost(recipient, groupName)
             }
             await updateRecipient(recipient)
-            return [askSubject()]
+            return [askImage()]
           case keyword.DO_NOTHING:
             return []
           default:
-            return [QuickReplyTemplate('こんにちは！何をしますか?', ['記事投稿', '何もしない'])]
+            return [QuickReplyTemplate('こんにちは！何をしますか?', ['おたより投稿', '何もしない'])]
         }
       case recipientStatus.INPUT_NAME:
         recipient.status = recipientStatus.CONFIRM_NAME

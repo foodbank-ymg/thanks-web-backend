@@ -2,7 +2,7 @@ import { ConfirmTemplate, TextTemplate } from '../../lib/line/template'
 
 export const tellWelcome = () => {
   return TextTemplate(
-    `友だち追加ありがとうございます。\nこのアカウントでは、投稿された記事の管理ができます。`,
+    `友だち追加ありがとうございます。\nこのアカウントでは、投稿されたおたよりの管理ができます。`,
   )
 }
 
@@ -32,6 +32,6 @@ export const askStationIdAgain = () => {
 
 export const completeRegister = (name: string) => {
   return TextTemplate(
-    `登録が完了しました。「${name}」さん、ありがとうございました。投稿された記事の管理をすることができます。`,
+    `登録が完了しました。「${name}」さん、ありがとうございました。投稿されたおたよりの管理をすることができます。`,
   )
 }
