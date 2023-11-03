@@ -61,7 +61,7 @@ export const createRecipient = async (lineId: string) => {
     recipientGroupId: '',
     lineId: lineId,
     name: '',
-    status: recipientStatus.NONE,
+    status: recipientStatus.INPUT_NAME,
     enable: false,
     createdAt: moment().utcOffset(9).toDate(),
   }

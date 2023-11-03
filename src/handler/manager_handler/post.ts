@@ -25,7 +25,7 @@ export const rejectedPostForManager = (name: string, subject: string) => {
 }
 
 export const askPostId = () => {
-  return TextTemplate('記事IDを入力してください。')
+  return TextTemplate('おたよりIDを入力してください。')
 }
 
 export const deletePostSuccess = (subject: string) => {
@@ -33,5 +33,5 @@ export const deletePostSuccess = (subject: string) => {
 }
 
 export const notFoundPost = () => {
-  return TextTemplate('記事が見つかりませんでした。')
+  return TextTemplate('おたよりが見つかりませんでした。')
 }

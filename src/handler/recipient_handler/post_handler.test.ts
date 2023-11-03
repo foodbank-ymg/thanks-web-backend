@@ -10,6 +10,7 @@ import { RecipientGroup } from '../../types/recipientGroup'
 import {
   askBody,
   askImage,
+  askSubject,
   askSubjectAgain,
   completePost,
   confirmBody,
@@ -91,13 +92,21 @@ jest.mock('../../lib/firestore/recipientGroup', () => ({
   getRecipientGroupById: () => mockGetRecipientGroup(),
 }))
 
-describe('recipient_handler/post_handler 記事投稿', () => {
+describe('recipient_handler/post_handler おたより投稿', () => {
   admin.initializeApp()
   newFirestore()
   const managerClient = undefined as any
   const recipient = getRecipient()
   mockGetRecipientGroup.mockReturnValue(getRecipientGroup())
   recipientSummary(recipient, 'test')
+
+  //* 画像入力はテストが難しい。
+  it(':画像完了', async () => {
+    const post = getPost(postStatus.INPUT_IMAGE)
+    expect(await reactPostText(managerClient, keyword.FINISH_IMAGE, recipient, post)).toMatchObject(
+      [askSubject()],
+    )
+  })
 
   it(':主題入力', async () => {
     const post = getPost(postStatus.INPUT_SUBJECT)
@@ -135,16 +144,9 @@ describe('recipient_handler/post_handler 記事投稿', () => {
   it(':本文確認', async () => {
     const post = getPost(postStatus.CONFIRM_BODY)
     expect(await reactPostText(managerClient, keyword.YES, recipient, post)).toMatchObject([
-      askImage(),
+      previewPost(post.subject, post.body, post.images),
+      confirmPost(),
     ])
-  })
-
-  //* 画像入力はテストが難しい。
-  it(':画像完了', async () => {
-    const post = getPost(postStatus.INPUT_IMAGE)
-    expect(await reactPostText(managerClient, keyword.FINISH_IMAGE, recipient, post)).toMatchObject(
-      [previewPost(post.subject, post.body, post.images), confirmPost()],
-    )
   })
 
   describe(':投稿確認', () => {

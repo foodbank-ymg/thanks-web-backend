@@ -5,6 +5,13 @@ import { makeId } from '../../utils/random/random'
 import { managerStatus } from '../../consts/constants'
 import moment from 'moment'
 
+export const GetManagerById = async (id: string) => {
+  let manager: Manager = (
+    await db.collection('managers').doc(id).withConverter<Manager>(managerConverter).get()
+  ).data()
+  return manager
+}
+
 export const getManagerByLineId = async (lineId: string) => {
   let manager = undefined
   ;(

@@ -12,7 +12,7 @@ import {
 test('line manager_line/setup message', async () => {
   expect(tellWelcome()).toMatchObject({
     type: 'text',
-    text: '友だち追加ありがとうございます。\nこのアカウントでは、投稿された記事の管理ができます。',
+    text: '友だち追加ありがとうございます。\nこのアカウントでは、投稿されたおたよりの管理ができます。',
   })
   expect(askName()).toMatchObject({
     type: 'text',
@@ -52,6 +52,6 @@ test('line manager_line/setup message', async () => {
 
   expect(completeRegister('foo')).toMatchObject({
     type: 'text',
-    text: '登録が完了しました。「foo」さん、ありがとうございました。投稿された記事の管理をすることができます。',
+    text: '登録が完了しました。「foo」さん、ありがとうございました。投稿されたおたよりの管理をすることができます。',
   })
 })

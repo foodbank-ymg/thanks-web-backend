@@ -18,6 +18,7 @@ import {
   confirmSubject,
   discardPost,
   previewPost,
+  askSubject,
 } from './post'
 import { keyword } from '../../consts/keyword'
 import { phrase } from '../../consts/phrase'
@@ -33,6 +34,25 @@ import { postSummary, recipientSummary } from '../../lib/sheet/summary'
 
 export const IMAGE_MAX = 1
 const IMAGE_SIZE = 680
+
+export const reactPostImage = async (image: Buffer, post: Post): Promise<Message[]> => {
+  switch (post.status) {
+    case postStatus.INPUT_IMAGE:
+      image = await sharp(image)
+        .resize({ width: IMAGE_SIZE, height: IMAGE_SIZE, fit: sharp.fit.inside })
+        .toBuffer()
+      let path = await uploadImage(image, post)
+      post.images.push(path)
+      await updatePost(post)
+      if (post.images.length >= IMAGE_MAX) {
+        post.status = postStatus.INPUT_SUBJECT
+        await updatePost(post)
+        return [askSubject()]
+      } else {
+        return [confirmImage(post.images.length)]
+      }
+  }
+}
 
 export const reactPostText = async (
   managerClient: Client,
@@ -68,9 +88,9 @@ export const reactPostText = async (
     case postStatus.CONFIRM_BODY:
       switch (text) {
         case keyword.YES:
-          post.status = postStatus.INPUT_IMAGE
+          post.status = postStatus.CONFIRM_SUBMIT
           await updatePost(post)
-          return [askImage()]
+          return [previewPost(post.subject, post.body, post.images), confirmPost()]
         case keyword.NO:
           post.status = postStatus.INPUT_BODY
           post.body = ''
@@ -81,15 +101,16 @@ export const reactPostText = async (
       }
     case postStatus.INPUT_IMAGE:
       if (text === keyword.FINISH_IMAGE) {
-        post.status = postStatus.CONFIRM_SUBMIT
+        post.status = postStatus.INPUT_SUBJECT
         await updatePost(post)
-        return [previewPost(post.subject, post.body, post.images), confirmPost()]
+        return [askSubject()]
       }
       break
     case postStatus.CONFIRM_SUBMIT:
       switch (text) {
         case keyword.DECIDE:
           post.status = postStatus.WAITING_REVIEW
+
           await updatePost(post)
           await Push(
             managerClient,
@@ -114,24 +135,5 @@ export const reactPostText = async (
       }
     case postStatus.WAITING_REVIEW:
       return [cannotPost(post.subject)]
-  }
-}
-
-export const reactPostImage = async (image: Buffer, post: Post): Promise<Message[]> => {
-  switch (post.status) {
-    case postStatus.INPUT_IMAGE:
-      image = await sharp(image)
-        .resize({ width: IMAGE_SIZE, height: IMAGE_SIZE, fit: sharp.fit.inside })
-        .toBuffer()
-      let path = await uploadImage(image, post)
-      post.images.push(path)
-      await updatePost(post)
-      if (post.images.length >= IMAGE_MAX) {
-        post.status = postStatus.CONFIRM_SUBMIT
-        await updatePost(post)
-        return [previewPost(post.subject, post.body, post.images), confirmPost()]
-      } else {
-        return [confirmImage(post.images.length)]
-      }
   }
 }
