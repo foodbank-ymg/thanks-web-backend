@@ -6,6 +6,8 @@ export type Post = {
   recipientGroupId: string
   recipientGroupName: string
   recipientId: string
+  approvedManagerId: string
+  rejectedManagerId: string
   status: postStatusType
   subject: string
   body: string
@@ -15,5 +17,6 @@ export type Post = {
   approvedBy: string
   createdAt: Date
   approvedAt: Date
+  rejectedAt: Date
   publishedAt: Date
 }

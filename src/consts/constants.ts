@@ -4,6 +4,7 @@ export const managerStatus = {
   INPUT_NAME: '名前入力',
   CONFIRM_NAME: '名前確認',
   INPUT_STATION_ID: '拠点ID入力',
+  INPUT_REJECT_REASON: '不許可理由入力',
   DELETE_POST: '記事削除',
 } as const
 export type managerStatusType = (typeof managerStatus)[keyof typeof managerStatus]

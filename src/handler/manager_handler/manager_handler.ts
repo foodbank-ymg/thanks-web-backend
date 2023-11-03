@@ -29,7 +29,12 @@ import {
   tellWelcomeBack,
 } from './setup'
 import { PostbackData } from '../../types/postback'
-import { GetPostById, deletePost, updatePost } from '../../lib/firestore/post'
+import {
+  GetPostById,
+  deletePost,
+  getPostByRejectedManagerId,
+  updatePost,
+} from '../../lib/firestore/post'
 import { Push } from '../../lib/line/line'
 import {
   askPostId,
@@ -118,7 +123,7 @@ const handleEvent = async (
       return [tellWelcomeBack(manager.name)]
     }
   } else if (event.type === 'message') {
-    const messages = await react(event, manager)
+    const messages = await react(recipientClient, managerClient, event, manager)
     return messages
   } else if (event.type === 'postback') {
     const messages = await reactPostback(recipientClient, managerClient, event, manager)
@@ -143,6 +148,7 @@ const reactPostback = async (
       post.isRecipientWorking = false
       post.approvedBy = manager.id
       post.approvedAt = moment().utcOffset(9).toDate()
+      post.approvedManagerId = manager.id
       await updatePost(post)
       recipient.status = recipientStatus.IDLE
       await updateRecipient(recipient)
@@ -158,23 +164,25 @@ const reactPostback = async (
     case keyword.REJECT:
       if (post.status != postStatus.WAITING_REVIEW) return []
       post.status = postStatus.REJECTED
+      post.rejectedAt = moment().utcOffset(9).toDate()
       post.isRecipientWorking = false
+      post.rejectedManagerId = manager.id
       await updatePost(post)
       recipient.status = recipientStatus.IDLE
       await updateRecipient(recipient)
-      await Push(recipientClient, [recipient.lineId], [rejectedPostForRecipient(post.subject)])
-      await Push(
-        managerClient,
-        (await getManagersByStationId(manager.stationId)).map((m) => m.lineId),
-        [rejectedPostForManager(manager.name, post.subject)],
-      )
-      insertLog(manager.name, action.REJECT_POST, postSummary(post))
+      manager.status = managerStatus.INPUT_REJECT_REASON
+      await updateManager(manager)
       break
   }
   return []
 }
 
-const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> => {
+const react = async (
+  recipientClient: Client,
+  managerClient: Client,
+  event: MessageEvent,
+  manager: Manager,
+): Promise<Message[]> => {
   if (event.message.type === 'text') {
     switch (manager.status) {
       case managerStatus.IDLE:
@@ -236,6 +244,33 @@ const react = async (event: MessageEvent, manager: Manager): Promise<Message[]> 
           await deploy()
           insertLog(manager.name, action.DELETE_POST, postSummary(post))
           return [deletePostSuccess(post.subject)]
+        }
+      case managerStatus.INPUT_REJECT_REASON:
+        const post_ = await getPostByRejectedManagerId(manager.id)
+        if (post_ === undefined) {
+          manager.status = managerStatus.IDLE
+          await updateManager(manager)
+          return [TextTemplate(phrase.systemError)]
+        } else {
+          const recipient = await GetRecipientById(post.recipientId)
+          if (post.status != postStatus.WAITING_REVIEW) return []
+          post.status = postStatus.REJECTED
+          post_.feedback = event.message.text
+          post.rejectedAt = moment().utcOffset(9).toDate()
+          post.isRecipientWorking = false
+          post.rejectedManagerId = manager.id
+          await updatePost(post)
+          recipient.status = recipientStatus.IDLE
+          await updateRecipient(recipient)
+          manager.status = managerStatus.IDLE
+          await updateManager(manager)
+          await Push(recipientClient, [recipient.lineId], [rejectedPostForRecipient(post.subject)])
+          await Push(
+            managerClient,
+            (await getManagersByStationId(manager.stationId)).map((m) => m.lineId),
+            [rejectedPostForManager(manager.name, post.subject)],
+          )
+          insertLog(manager.name, action.REJECT_POST, postSummary(post))
         }
     }
   } else {
