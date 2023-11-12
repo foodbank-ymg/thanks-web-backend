@@ -18,10 +18,8 @@ export const approvedPostForManager = (name: string, subject: string) => {
   return TextTemplate(`「${name}」さんが、「${subject}」の投稿を承認しました。`)
 }
 
-export const rejectedPostForManager = () => {
-  return TextTemplate(
-    `入力ありがとうございます。投稿された方に伝えました。改めて投稿をしてもらいます。`,
-  )
+export const rejectedPostForManager = (name: string, subject: string) => {
+  return TextTemplate(`「${name}」さんが、「${subject}」の投稿を拒否しました。`)
 }
 
 export const askPostId = () => {

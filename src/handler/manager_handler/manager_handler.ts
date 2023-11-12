@@ -269,9 +269,9 @@ const react = async (
           await Push(
             managerClient,
             (await getManagersByStationId(manager.stationId)).map((m) => m.lineId),
-            [rejectedPostForManager()],
+            [rejectedPostForManager(manager.name, post_.subject)],
           )
-          insertLog(manager.name, action.REJECT_POST, postSummary(post_))
+          insertLog(manager.name, action.REJECT_POST, `${postSummary(post_)}_${post_.feedback}`)
           return []
         }
     }
