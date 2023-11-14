@@ -33,6 +33,7 @@ export const getPostByRejectedManagerId = async (id: string) => {
     await db
       .collection('posts')
       .where('rejectedManagerId', '==', id)
+      .where('isRecipientWorking', '==', false)
       .withConverter<Post>(postConverter)
       .get()
   ).forEach((doc) => {

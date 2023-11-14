@@ -255,7 +255,6 @@ const react = async (
           post_.feedback = event.message.text
           post_.rejectedAt = moment().utcOffset(9).toDate()
           post_.isRecipientWorking = false
-          post_.rejectedManagerId = manager.id
           await updatePost(post_)
           recipient.status = recipientStatus.IDLE
           await updateRecipient(recipient)
