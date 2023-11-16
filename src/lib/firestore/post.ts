@@ -27,7 +27,7 @@ export const getWorkingPostByRecipientId = async (id: string) => {
   return post as Post | undefined
 }
 
-export const getPostByRejectedManagerId = async (id: string) => {
+export const getWorkingPostByRejectedManagerId = async (id: string) => {
   let post = undefined
   ;(
     await db

@@ -39,6 +39,9 @@ const getPost = (status: postStatusType): Post => {
     publishedAt: null,
     approvedAt: null,
     createdAt: new Date('December 15, 1990 01:23:00'),
+    approvedManagerId: '',
+    rejectedManagerId: '',
+    rejectedAt: null,
   }
 }
 

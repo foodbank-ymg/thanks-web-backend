@@ -32,7 +32,7 @@ import { PostbackData } from '../../types/postback'
 import {
   GetPostById,
   deletePost,
-  getPostByRejectedManagerId,
+  getWorkingPostByRejectedManagerId,
   updatePost,
 } from '../../lib/firestore/post'
 import { Push } from '../../lib/line/line'
@@ -244,7 +244,7 @@ const react = async (
           return [deletePostSuccess(post.subject)]
         }
       case managerStatus.INPUT_REJECT_REASON:
-        const post_ = await getPostByRejectedManagerId(manager.id)
+        const post_ = await getWorkingPostByRejectedManagerId(manager.id)
         if (post_ === undefined) {
           manager.status = managerStatus.IDLE
           await updateManager(manager)
