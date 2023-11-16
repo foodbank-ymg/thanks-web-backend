@@ -27,6 +27,21 @@ export const getWorkingPostByRecipientId = async (id: string) => {
   return post as Post | undefined
 }
 
+export const getWorkingPostByRejectedManagerId = async (id: string) => {
+  let post = undefined
+  ;(
+    await db
+      .collection('posts')
+      .where('rejectedManagerId', '==', id)
+      .where('isRecipientWorking', '==', false)
+      .withConverter<Post>(postConverter)
+      .get()
+  ).forEach((doc) => {
+    post = doc.data()
+  })
+  return post as Post | undefined
+}
+
 export const getJustPublishedPosts = async () => {
   let posts = (
     await db
@@ -48,6 +63,8 @@ const postConverter = {
       recipientGroupId: post.recipientGroupId,
       recipientGroupName: post.recipientGroupName,
       recipientId: post.recipientId,
+      approvedManagerId: post.approvedManagerId,
+      rejectedManagerId: post.rejectedManagerId,
       status: post.status,
       subject: post.subject,
       body: post.body,
@@ -57,6 +74,7 @@ const postConverter = {
       approvedBy: post.approvedBy,
       createdAt: post.createdAt,
       approvedAt: post.approvedAt,
+      rejectedAt: post.rejectedAt,
       publishedAt: post.publishedAt,
     }
   },
@@ -68,6 +86,8 @@ const postConverter = {
       recipientGroupId: data.recipientGroupId,
       recipientGroupName: data.recipientGroupName,
       recipientId: data.recipientId,
+      approvedManagerId: data.approvedManagerId,
+      rejectedManagerId: data.rejectedManagerId,
       status: data.status,
       subject: data.subject,
       body: data.body,
@@ -77,6 +97,7 @@ const postConverter = {
       approvedBy: data.approvedBy,
       createdAt: data.createdAt.toDate(),
       approvedAt: data.approvedAt ? data.approvedAt.toDate() : null,
+      rejectedAt: data.rejectedAt ? data.rejectedAt.toDate() : null,
       publishedAt: data.publishedAt ? data.publishedAt.toDate() : null,
     }
   },
@@ -89,6 +110,8 @@ export const createPost = async (recipient: Recipient, groupName: string) => {
     recipientGroupId: recipient.recipientGroupId,
     recipientGroupName: groupName,
     recipientId: recipient.id,
+    approvedManagerId: '',
+    rejectedManagerId: '',
     status: postStatus.INPUT_IMAGE,
     subject: '',
     body: '',
@@ -98,6 +121,7 @@ export const createPost = async (recipient: Recipient, groupName: string) => {
     approvedBy: '',
     createdAt: moment().utcOffset(9).toDate(),
     approvedAt: null,
+    rejectedAt: null,
     publishedAt: null,
   }
   updatePost(newPost)

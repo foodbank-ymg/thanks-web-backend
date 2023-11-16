@@ -2,7 +2,6 @@ on:
   push:
     branches:
       - develop
-
 name: Build and Deploy to Cloud Run on merge to branch 'develop'
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID_DEV }}
