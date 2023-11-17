@@ -36,7 +36,7 @@ export class publishPostsHandler {
 
     posts.forEach(async (post) => {
       let recipientLine = (await GetRecipientById(post.recipientId)).lineId
-      let managerLine = (await GetManagerById(post.approvedBy)).lineId
+      let managerLine = (await GetManagerById(post.approvedManagerId)).lineId
       const pageUrl = `${conf.frontendUrl}/post/${post.id}/?direct=1`
       this.recipientClient.pushMessage(recipientLine, [publishedPost(post.subject, pageUrl)])
       this.managerClient.pushMessage(managerLine, [publishedPost(post.subject, pageUrl)])

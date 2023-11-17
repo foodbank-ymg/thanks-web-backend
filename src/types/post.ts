@@ -14,7 +14,6 @@ export type Post = {
   images: string[]
   feedback: string
   isRecipientWorking: boolean
-  approvedBy: string
   createdAt: Date
   approvedAt: Date
   rejectedAt: Date

@@ -149,7 +149,6 @@ const reactPostback = async (
       if (post.rejectedManagerId != '' || post.approvedManagerId != '') return []
       post.status = postStatus.APPROVED
       post.isRecipientWorking = false
-      post.approvedBy = manager.id
       post.approvedAt = moment().utcOffset(9).toDate()
       post.approvedManagerId = manager.id
       await updatePost(post)
