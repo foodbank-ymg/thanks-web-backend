@@ -146,6 +146,8 @@ const reactPostback = async (
 
   switch (data.action) {
     case keyword.APPROVE:
+      console.log(`approve: ${post.approvedManagerId}`)
+      console.log(`reject: ${post.rejectedManagerId}`)
       if (post.rejectedManagerId != '' || post.approvedManagerId != '') return []
       post.status = postStatus.APPROVED
       post.isRecipientWorking = false
@@ -164,6 +166,8 @@ const reactPostback = async (
       insertLog(manager.name, action.APPROVE_POST, postSummary(post))
       break
     case keyword.REJECT:
+      console.log(`approve: ${post.approvedManagerId}`)
+      console.log(`reject: ${post.rejectedManagerId}`)
       if (post.rejectedManagerId != '' || post.approvedManagerId != '') return []
       post.rejectedManagerId = manager.id
       await updatePost(post)
