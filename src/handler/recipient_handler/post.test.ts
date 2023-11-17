@@ -80,7 +80,7 @@ test(`line recipient_line/post message`, async () => {
   )
   let conf = loadConfig()
 
-  expect(confirmToApprovePost('hoge', 'rg-0001-230428-161200')).toMatchObject(
+  expect(confirmToApprovePost('hoge', '230428-161200')).toMatchObject(
     ConfirmTemplatePostback(
       `「hoge」さんが新しいおたよりを投稿しました。ご確認ください。`,
       `投稿承認`,
@@ -89,14 +89,14 @@ test(`line recipient_line/post message`, async () => {
           keyword.APPROVE,
           JSON.stringify({
             action: keyword.APPROVE,
-            target: 'rg-0001-230428-161200',
+            target: '230428-161200',
           } as PostbackData),
         ),
         NewPostbackAction(
           keyword.REJECT,
           JSON.stringify({
             action: keyword.REJECT,
-            target: 'rg-0001-230428-161200',
+            target: '230428-161200',
           } as PostbackData),
         ),
       ],

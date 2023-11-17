@@ -10,7 +10,7 @@ const getRecipient = (
   status: recipientStatusType,
 ): Recipient => {
   return {
-    id: 'r-0001',
+    id: 'r0001',
     stationId: stationId,
     recipientGroupId: recipientGroupId,
     lineId: 'Uada2abc97aaaaae0a223eb4ddcbbbbbb',
@@ -64,9 +64,7 @@ describe('recipient_line/recipient_line フォロー', () => {
   })
 
   it(':即復帰', async () => {
-    mockGetRecipient.mockReturnValue(
-      getRecipient('s-0001', 'rg-0001', '太郎', recipientStatus.NONE),
-    )
+    mockGetRecipient.mockReturnValue(getRecipient('s0001', 'rg0001', '太郎', recipientStatus.NONE))
 
     expect(await handleEvent(managerClient, recipientClient, event)).toMatchObject([
       {

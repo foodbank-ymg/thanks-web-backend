@@ -6,14 +6,16 @@ export type Post = {
   recipientGroupId: string
   recipientGroupName: string
   recipientId: string
+  approvedManagerId: string
+  rejectedManagerId: string
   status: postStatusType
   subject: string
   body: string
   images: string[]
   feedback: string
   isRecipientWorking: boolean
-  approvedBy: string
   createdAt: Date
   approvedAt: Date
+  rejectedAt: Date
   publishedAt: Date
 }

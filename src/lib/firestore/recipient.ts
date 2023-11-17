@@ -56,7 +56,7 @@ const recipientConverter = {
 
 export const createRecipient = async (lineId: string) => {
   const newRecipient: Recipient = {
-    id: `r-${makeId(4)}`,
+    id: `r${makeId(4)}`,
     stationId: '',
     recipientGroupId: '',
     lineId: lineId,

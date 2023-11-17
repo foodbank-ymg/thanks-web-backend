@@ -75,7 +75,7 @@ const managerConverter = {
 
 export const createManager = async (lineId: string) => {
   const newManager: Manager = {
-    id: `m-${makeId(4)}`,
+    id: `m${makeId(4)}`,
     stationId: '',
     lineId: lineId,
     name: '',
