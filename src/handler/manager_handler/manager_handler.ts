@@ -247,7 +247,7 @@ const react = async (
         if (post_ === undefined) {
           manager.status = managerStatus.IDLE
           await updateManager(manager)
-          console.log('post not found')
+          console.log('INPUT_REJECT_REASON: post not found')
           return [TextTemplate(phrase.systemError)]
         } else {
           const recipient = await GetRecipientById(post_.recipientId)
