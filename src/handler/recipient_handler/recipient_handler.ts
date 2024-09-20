@@ -81,7 +81,8 @@ export const handleEvent = async (
   if (recipient.status === recipientStatus.INPUT_POST) {
     post = await getWorkingPostByRecipientId(recipient.id)
     if (post === undefined) {
-      //TODO return data inconsistent error
+      console.error(`recipient[${recipient.id}] status is INPUT_POST but post is undefined.`)
+      return [TextTemplate(phrase.systemError)]
     }
   }
 

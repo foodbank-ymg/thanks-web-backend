@@ -61,12 +61,12 @@ export const createRecipient = async (lineId: string) => {
     recipientGroupId: '',
     lineId: lineId,
     name: '',
-    status: recipientStatus.INPUT_NAME,
+    status: recipientStatus.IDLE,
     enable: false,
     createdAt: moment().utcOffset(9).toDate(),
   }
   updateRecipient(newRecipient)
-  console.info(`create new recipient${newRecipient}`)
+  console.info(`create new recipient: ${newRecipient}`)
   return newRecipient
 }
 export const updateRecipient = async (recipient: Recipient) => {
