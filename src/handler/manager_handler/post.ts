@@ -33,3 +33,11 @@ export const deletePostSuccess = (subject: string) => {
 export const notFoundPost = () => {
   return TextTemplate('おたよりが見つかりませんでした。')
 }
+
+export const postAlreadyApproved = () => {
+  return TextTemplate('このおたよりはすでに承認されています。')
+}
+
+export const postAlreadyRejected = () => {
+  return TextTemplate('このおたよりはすでに却下されています。')
+}
