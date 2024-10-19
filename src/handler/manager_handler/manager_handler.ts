@@ -45,6 +45,8 @@ import {
   rejectedPostForManager,
   rejectedPostForRecipient,
   askRejectedReason,
+  postAlreadyRejected,
+  postAlreadyApproved,
 } from './post'
 import { GetRecipientById, updateRecipient } from '../../lib/firestore/recipient'
 import { insertLog } from '../../lib/sheet/log'
@@ -148,7 +150,11 @@ const reactPostback = async (
     case keyword.APPROVE:
       console.log(`approve: ${post.approvedManagerId}`)
       console.log(`reject: ${post.rejectedManagerId}`)
-      if (post.rejectedManagerId != '' || post.approvedManagerId != '') return []
+      if (post.rejectedManagerId != '') {
+        return [postAlreadyRejected()]
+      } else if (post.approvedManagerId != '') {
+        return [postAlreadyApproved()]
+      }
       post.status = postStatus.APPROVED
       post.isRecipientWorking = false
       post.approvedAt = moment().utcOffset(9).toDate()
@@ -168,7 +174,11 @@ const reactPostback = async (
     case keyword.REJECT:
       console.log(`approve: ${post.approvedManagerId}`)
       console.log(`reject: ${post.rejectedManagerId}`)
-      if (post.rejectedManagerId != '' || post.approvedManagerId != '') return []
+      if (post.rejectedManagerId != '') {
+        return [postAlreadyRejected()]
+      } else if (post.approvedManagerId != '') {
+        return [postAlreadyApproved()]
+      }
       post.rejectedManagerId = manager.id
       await updatePost(post)
       manager.status = managerStatus.INPUT_REJECT_REASON
