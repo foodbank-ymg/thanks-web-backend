@@ -57,7 +57,13 @@ export class recipientLineHandler {
 
     //eventの種類によってはreplyを行わない。
     if (event.type === 'message' || event.type === 'follow') {
-      if (messages) result = await this.recipientClient.replyMessage(event.replyToken, messages)
+      if (messages) {
+        try {
+          result = await this.recipientClient.replyMessage(event.replyToken, messages)
+        } catch (err) {
+          console.error(err)
+        }
+      }
     }
 
     // すべてが終わり、resultsをBodyとしてhttpの200を返してる
