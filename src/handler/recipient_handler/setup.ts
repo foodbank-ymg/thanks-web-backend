@@ -33,5 +33,11 @@ export const askRecipientId = () => {
 }
 
 export const askRecipientIdAgain = () => {
-  return TextTemplate('団体IDが見つかりません。もう一度入力をお願いします。')
+  return TextTemplate('団体が見つかりません。もう一度入力をお願いします。')
+}
+
+export const tellRecipientGroupInvalid = () => {
+  return TextTemplate(
+    '団体ID（stationId）が不正です。本部に連絡してください。対応後にもう一度入力をお願いします。',
+  )
 }

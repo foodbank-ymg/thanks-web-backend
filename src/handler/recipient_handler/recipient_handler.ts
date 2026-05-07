@@ -20,6 +20,7 @@ import {
   tellWelcomeBack,
   askRecipientId,
   askRecipientIdAgain,
+  tellRecipientGroupInvalid,
 } from './setup'
 import { reactPostImage, reactPostText } from './post_handler'
 import { createPost, getWorkingPostByRecipientId } from '../../lib/firestore/post'
@@ -178,6 +179,8 @@ const react = async (
         const recipientGroup = await getRecipientGroupById(event.message.text)
         if (recipientGroup === undefined) {
           return [askRecipientIdAgain()]
+        } else if (!recipientGroup.stationId) {
+          return [tellRecipientGroupInvalid()]
         } else {
           recipient.recipientGroupId = recipientGroup.id
           recipient.stationId = recipientGroup.stationId
