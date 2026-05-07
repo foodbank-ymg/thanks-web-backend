@@ -113,6 +113,18 @@ export const handleEvent = async (
       return [tellWelcomeBack(recipient.name)]
     }
   } else if (event.type === 'message') {
+    // setup未完了でIDLEに留まっているケースをsetupフローに戻す
+    if (recipient.status === recipientStatus.IDLE) {
+      if (recipient.name === '') {
+        recipient.status = recipientStatus.INPUT_NAME
+        await updateRecipient(recipient)
+        return [askName()]
+      } else if (recipient.recipientGroupId === '') {
+        recipient.status = recipientStatus.INPUT_RECIPIENT_ID
+        await updateRecipient(recipient)
+        return [askRecipientId()]
+      }
+    }
     const messages = await react(managerClient, recipientClient, event, recipient, post)
     return messages
   }
