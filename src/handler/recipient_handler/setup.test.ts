@@ -7,6 +7,7 @@ import {
   tellWelcomeBack,
   askRecipientId,
   askRecipientIdAgain,
+  tellRecipientGroupInvalid,
 } from './setup'
 
 test('line recipient_line/setup message', async () => {
@@ -51,6 +52,10 @@ test('line recipient_line/setup message', async () => {
   })
   expect(askRecipientIdAgain()).toMatchObject({
     type: 'text',
-    text: '団体IDが見つかりません。もう一度入力をお願いします。',
+    text: '団体が見つかりません。もう一度入力をお願いします。',
+  })
+  expect(tellRecipientGroupInvalid()).toMatchObject({
+    type: 'text',
+    text: '団体ID（stationId）が不正です。本部に連絡してください。対応後にもう一度入力をお願いします。',
   })
 })

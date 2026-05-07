@@ -20,6 +20,7 @@ import {
   tellWelcomeBack,
   askRecipientId,
   askRecipientIdAgain,
+  tellRecipientGroupInvalid,
 } from './setup'
 import { reactPostImage, reactPostText } from './post_handler'
 import { createPost, getWorkingPostByRecipientId } from '../../lib/firestore/post'
@@ -57,7 +58,13 @@ export class recipientLineHandler {
 
     //eventの種類によってはreplyを行わない。
     if (event.type === 'message' || event.type === 'follow') {
-      if (messages) result = await this.recipientClient.replyMessage(event.replyToken, messages)
+      if (messages) {
+        try {
+          result = await this.recipientClient.replyMessage(event.replyToken, messages)
+        } catch (err) {
+          console.error(err)
+        }
+      }
     }
 
     // すべてが終わり、resultsをBodyとしてhttpの200を返してる
@@ -107,6 +114,18 @@ export const handleEvent = async (
       return [tellWelcomeBack(recipient.name)]
     }
   } else if (event.type === 'message') {
+    // setup未完了でIDLEに留まっているケースをsetupフローに戻す
+    if (recipient.status === recipientStatus.IDLE) {
+      if (recipient.name === '') {
+        recipient.status = recipientStatus.INPUT_NAME
+        await updateRecipient(recipient)
+        return [askName()]
+      } else if (recipient.recipientGroupId === '') {
+        recipient.status = recipientStatus.INPUT_RECIPIENT_ID
+        await updateRecipient(recipient)
+        return [askRecipientId()]
+      }
+    }
     const messages = await react(managerClient, recipientClient, event, recipient, post)
     return messages
   }
@@ -160,6 +179,8 @@ const react = async (
         const recipientGroup = await getRecipientGroupById(event.message.text)
         if (recipientGroup === undefined) {
           return [askRecipientIdAgain()]
+        } else if (!recipientGroup.stationId) {
+          return [tellRecipientGroupInvalid()]
         } else {
           recipient.recipientGroupId = recipientGroup.id
           recipient.stationId = recipientGroup.stationId

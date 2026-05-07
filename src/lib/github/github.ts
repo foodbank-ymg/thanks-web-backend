@@ -1,6 +1,5 @@
-import http from 'http'
+import axios from 'axios'
 import { loadConfig } from '../../config/config'
-var request = require('request')
 
 export var gh: GithubClient | undefined
 
@@ -27,35 +26,19 @@ export class GithubClient {
     this.token = token
   }
 
-  public dispatchWorkflow(yml: string, branch: string): Promise<void> {
-    const data = JSON.stringify({
-      ref: branch,
-    })
-
+  public async dispatchWorkflow(yml: string, branch: string): Promise<void> {
     const conf = loadConfig()
-    var options = {
-      method: 'POST',
-      url: `https://api.github.com/repos/${this.username}/${this.repository}/actions/workflows/${yml}/dispatches`,
-      headers: {
-        Accept: 'application/vnd.github.v3+json',
-        'Content-Type': 'application/json',
-        Authorization: `token ${conf.githubToken}`,
-        'Content-Length': data.length,
-        'User-Agent':
-          'githubapi',
+    const url = `https://api.github.com/repos/${this.username}/${this.repository}/actions/workflows/${yml}/dispatches`
+    await axios.post(
+      url,
+      { ref: branch },
+      {
+        headers: {
+          Accept: 'application/vnd.github.v3+json',
+          Authorization: `token ${conf.githubToken}`,
+          'User-Agent': 'githubapi',
+        },
       },
-      body: data,
-    }
-
-    return new Promise((resolve, reject) => {
-      request(options, function (error: Error, response: http.IncomingMessage) {
-        if (error) reject(error)
-        if (response.statusCode && response.statusCode >= 200 && response.statusCode < 300) {
-          resolve()
-        } else {
-          reject(new Error(`Request failed with status code ${response.statusCode}`))
-        }
-      })
-    })
+    )
   }
 }

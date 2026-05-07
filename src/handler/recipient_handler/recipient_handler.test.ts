@@ -28,6 +28,14 @@ const getEvent = (type: string) => {
   } as WebhookEvent
 }
 
+const getMessageEvent = (text: string) => {
+  return {
+    type: 'message',
+    source: { userId: 'Uada2abc97aaaaae0a223eb4ddcbbbbbb' },
+    message: { type: 'text', text: text },
+  } as WebhookEvent
+}
+
 const mockGetRecipient = jest.fn()
 
 jest.mock('../../lib/firestore/recipient', () => ({
@@ -71,6 +79,28 @@ describe('recipient_line/recipient_line フォロー', () => {
         text: '太郎さん、おかえりなさい。',
         type: 'text',
       },
+    ])
+  })
+})
+
+describe('recipient_line/recipient_line メッセージ受信時のsetup復帰', () => {
+  const event = getMessageEvent('こんにちは')
+  const managerClient = undefined as any
+  const recipientClient = undefined as any
+
+  it(':IDLEかつ名前未入力なら名前入力に戻す', async () => {
+    mockGetRecipient.mockReturnValue(getRecipient('', '', '', recipientStatus.IDLE))
+
+    expect(await handleEvent(managerClient, recipientClient, event)).toMatchObject([
+      { type: 'text', text: 'まず、お名前を教えてください。（サイトには公開されません）' },
+    ])
+  })
+
+  it(':IDLEかつ団体ID未入力なら団体ID入力に戻す', async () => {
+    mockGetRecipient.mockReturnValue(getRecipient('', '', '太郎', recipientStatus.IDLE))
+
+    expect(await handleEvent(managerClient, recipientClient, event)).toMatchObject([
+      { type: 'text', text: 'フードバンク山口から払い出された団体IDを入力してください。' },
     ])
   })
 })
