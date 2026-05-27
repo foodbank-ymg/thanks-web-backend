@@ -143,3 +143,9 @@ export const cannotPost = (subject: string) => {
     `以前投稿された「${subject}」が承認待ちのため、次のおたより投稿を始めることができません。`,
   )
 }
+
+export const noApprover = () => {
+  return TextTemplate(
+    `承認者がいません、事務局に確認してください。承認者が登録された後に、再度進めてください。`,
+  )
+}

@@ -16,10 +16,12 @@ import {
   confirmPost,
   confirmSubject,
   discardPost,
+  noApprover,
   previewPost,
 } from './post'
 import { reactPostText } from './post_handler'
 import admin from 'firebase-admin'
+import { getManagersByStationId } from '../../lib/firestore/manager'
 
 const getPost = (status: postStatusType): Post => {
   return {
@@ -153,9 +155,27 @@ describe('recipient_handler/post_handler おたより投稿', () => {
   describe(':投稿確認', () => {
     it(':決定', async () => {
       const post = getPost(postStatus.CONFIRM_SUBMIT)
+      ;(getManagersByStationId as jest.Mock).mockResolvedValueOnce([{ lineId: 'mockLine' }])
       expect(await reactPostText(managerClient, keyword.DECIDE, recipient, post)).toMatchObject([
         completePost(),
       ])
+    })
+    it(':決定時の承認依頼は recipient.stationId に関わらず s0001 に固定される', async () => {
+      const post = getPost(postStatus.CONFIRM_SUBMIT)
+      const otherStationRecipient: Recipient = { ...recipient, stationId: 's0004' }
+      ;(getManagersByStationId as jest.Mock).mockClear()
+      ;(getManagersByStationId as jest.Mock).mockResolvedValueOnce([{ lineId: 'mockLine' }])
+      await reactPostText(managerClient, keyword.DECIDE, otherStationRecipient, post)
+      expect(getManagersByStationId).toHaveBeenCalledWith('s0001')
+    })
+    it(':決定時 s0001 に承認者が0人なら案内文と確認文を返し WAITING_REVIEW にしない', async () => {
+      const post = getPost(postStatus.CONFIRM_SUBMIT)
+      ;(getManagersByStationId as jest.Mock).mockResolvedValueOnce([])
+      expect(await reactPostText(managerClient, keyword.DECIDE, recipient, post)).toMatchObject([
+        noApprover(),
+        confirmPost(),
+      ])
+      expect(post.status).toBe(postStatus.CONFIRM_SUBMIT)
     })
     it(':破棄', async () => {
       const post = getPost(postStatus.CONFIRM_SUBMIT)

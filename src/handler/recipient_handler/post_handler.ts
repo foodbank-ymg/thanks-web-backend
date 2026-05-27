@@ -17,6 +17,7 @@ import {
   confirmPost,
   confirmSubject,
   discardPost,
+  noApprover,
   previewPost,
   askSubject,
 } from './post'
@@ -109,12 +110,16 @@ export const reactPostText = async (
     case postStatus.CONFIRM_SUBMIT:
       switch (text) {
         case keyword.DECIDE:
+          // 各地区に承認者を配置できないため、承認依頼は山口地区(s0001)の管理者へ集約する
+          const approvers = await getManagersByStationId('s0001')
+          if (approvers.length === 0) {
+            return [noApprover(), confirmPost()]
+          }
           post.status = postStatus.WAITING_REVIEW
-
           await updatePost(post)
           await Push(
             managerClient,
-            (await getManagersByStationId(recipient.stationId)).map((m) => m.lineId),
+            approvers.map((m) => m.lineId),
             [
               previewPost(post.subject, post.body, post.images),
               confirmToApprovePost(recipient.name, post.id),
